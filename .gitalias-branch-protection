@@ -1,0 +1,39 @@
+#!/bin/bash
+# Git aliases for branch protection
+
+# Safe PR merge (never deletes branch)
+git config --global alias.safe-merge '!f() { gh pr merge "$1" --merge --delete-branch=false; }; f'
+
+# Check if branch is protected before operations
+git config --global alias.is-protected '!f() { 
+    BRANCH="${1:-$(git branch --show-current)}"
+    PROTECTED="main dev int staging rc prd"
+    for p in $PROTECTED; do 
+        [[ "$BRANCH" = "$p" ]] && echo "✅ $BRANCH is protected" && return 0
+    done
+    echo "❌ $BRANCH is not protected"
+    return 1
+}; f'
+
+# List protected branches
+git config --global alias.protected-branches '!echo "Protected branches: main dev int staging rc prd"'
+
+# Prevent accidental branch deletion
+git config --global alias.safe-delete '!f() {
+    BRANCH="$1"
+    PROTECTED="main dev int staging rc prd"
+    for p in $PROTECTED; do
+        if [[ "$BRANCH" = "$p" ]]; then
+            echo "❌ Cannot delete protected branch: $BRANCH"
+            echo "Protected branches: $PROTECTED"
+            return 1
+        fi
+    done
+    git branch -d "$BRANCH"
+}; f'
+
+echo "Branch protection aliases configured:"
+echo "  git safe-merge <PR>     - Merge PR without deleting branch"
+echo "  git is-protected [branch] - Check if branch is protected"
+echo "  git protected-branches   - List all protected branches"
+echo "  git safe-delete <branch> - Delete branch (blocks protected ones)"

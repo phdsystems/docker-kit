@@ -1,0 +1,24 @@
+#!/bin/bash
+# Git hook to warn about multiple local branches before push
+
+LOCAL_BRANCH_COUNT=$(git branch | wc -l)
+CURRENT_BRANCH=$(git branch --show-current)
+
+if [ "$LOCAL_BRANCH_COUNT" -gt 2 ]; then
+    echo "⚠️  Warning: You have $LOCAL_BRANCH_COUNT local branches"
+    echo "Current branch: $CURRENT_BRANCH"
+    echo ""
+    echo "Other local branches:"
+    git branch | grep -v "^\*"
+    echo ""
+    echo "💡 Tip: Keep only active branches locally. Delete others with:"
+    echo "   git branch -D <branch-name>"
+    echo ""
+    read -p "Continue push? (y/n): " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        exit 1
+    fi
+fi
+
+exit 0

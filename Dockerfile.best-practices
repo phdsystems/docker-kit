@@ -1,0 +1,79 @@
+# syntax=docker/dockerfile:1.4
+# -----------------------------------------------------------------------------
+# DockerKit - Docker Management Toolkit
+# Production Dockerfile with Best Practices
+# -----------------------------------------------------------------------------
+
+# For full build with all features, see build-targets/Dockerfile.dockerkit
+# This is a simplified production build
+
+# Pin specific Alpine version for reproducibility
+FROM alpine:3.19.1 AS production
+
+# Add metadata labels
+LABEL maintainer="DCK Team" \
+      version="1.0.0" \
+      description="DCK - Docker Management Toolkit" \
+      org.opencontainers.image.source="https://github.com/phdsystems/dck" \
+      org.opencontainers.image.vendor="PHD Systems" \
+      org.opencontainers.image.title="DCK" \
+      org.opencontainers.image.description="Comprehensive Docker Management Toolkit"
+
+# Install required packages in single layer, clean up after
+# hadolint ignore=DL3018
+RUN apk add --no-cache \
+    bash=5.2.21-r0 \
+    curl=8.5.0-r0 \
+    jq=1.7.1-r0 \
+    git=2.43.5-r0 \
+    docker-cli=25.0.5-r0 \
+    docker-cli-compose=2.24.7-r0 \
+    sudo=1.9.15_p5-r0 \
+    && rm -rf /var/cache/apk/*
+
+# Create non-root user with specific UID/GID
+# Best practice: Don't use sudo in production, but needed for Docker socket access
+ARG USER_UID=1000
+ARG USER_GID=1000
+RUN addgroup -g ${USER_GID} dck && \
+    adduser -D -u ${USER_UID} -G dck -s /bin/bash dck && \
+    echo "dck ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers.d/dck && \
+    chmod 0440 /etc/sudoers.d/dck
+
+# Set up working directory
+WORKDIR /opt/dck
+
+# Copy files with proper ownership in single layer
+# Order from least to most frequently changed for better layer caching
+COPY --chown=dck:dck ./docs/ /opt/dck/docs/
+COPY --chown=dck:dck ./lib/ /opt/dck/lib/
+COPY --chown=dck:dck ./src/ /opt/dck/src/
+COPY --chown=dck:dck ./dck /opt/dck/
+
+# Set up permissions and create necessary directories
+RUN chmod +x dck src/*.sh && \
+    ln -s /opt/dck/dck /usr/local/bin/dck && \
+    mkdir -p /var/lib/dck/data /var/lib/dck/logs && \
+    chown -R dck:dck /var/lib/dck
+
+# Environment variables
+ENV PATH="/opt/dck:${PATH}" \
+    DCK_HOME="/opt/dck" \
+    DCK_DATA="/var/lib/dck/data" \
+    DCK_LOGS="/var/lib/dck/logs" \
+    DOCKER_HOST="unix:///var/run/docker.sock"
+
+# Health check with proper timeout and interval
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD dck version || exit 1
+
+# Security: Drop capabilities except what's needed
+# Note: Docker socket access requires some privileges
+USER dck
+
+# Define volumes for persistent data
+VOLUME ["/var/lib/dck/data", "/var/lib/dck/logs"]
+
+# Use exec form for ENTRYPOINT to ensure proper signal handling
+ENTRYPOINT ["dck"]
+CMD ["--help"]

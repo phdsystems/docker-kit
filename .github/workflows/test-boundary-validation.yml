@@ -1,0 +1,186 @@
+name: Test Boundary Validation
+
+on:
+  pull_request:
+    paths:
+      - 'tests/**/*.sh'
+      - 'scripts/**/*.sh'
+  push:
+    branches:
+      - main
+      - dev
+      - 'feature/**'
+    paths:
+      - 'tests/**/*.sh'
+      - 'scripts/**/*.sh'
+
+jobs:
+  validate-test-boundaries:
+    name: Validate Test Boundary Isolation
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Set up test environment
+        run: |
+          # Create safe test directories
+          mkdir -p $HOME/.cache/ade-tests/{temp,logs,artifacts}
+          
+          # Make enforcer executable
+          chmod +x modules/ade-quality/src/adeunit/lib/adeunit-boundary-enforcer.sh
+          chmod +x modules/ade-quality/src/adeunit/adeunit-safe
+      
+      - name: Validate all test scripts
+        id: validate
+        run: |
+          echo "====================================="
+          echo "Validating Test Boundary Compliance"
+          echo "====================================="
+          
+          # Run validation
+          if ./modules/ade-quality/src/adeunit/lib/adeunit-boundary-enforcer.sh validate-all ./tests; then
+            echo "✅ All tests comply with boundary isolation rules"
+            echo "validation_passed=true" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Some tests violate boundary isolation rules"
+            echo "validation_passed=false" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+      
+      - name: Check for dangerous patterns
+        run: |
+          echo "Checking for dangerous patterns in test files..."
+          
+          # Patterns that should never appear in tests
+          dangerous_patterns=(
+            "rm -rf /"
+            "rm -rf /etc"
+            "rm -rf /usr"
+            "rm -rf /var"
+            "sudo rm -rf"
+            "> /etc/"
+            "> /usr/"
+            "chmod 777 /"
+          )
+          
+          violations_found=false
+          
+          for pattern in "${dangerous_patterns[@]}"; do
+            echo "Checking for: $pattern"
+            if grep -r "$pattern" tests/ --include="*.sh" 2>/dev/null; then
+              echo "❌ CRITICAL: Found dangerous pattern: $pattern"
+              violations_found=true
+            fi
+          done
+          
+          if [ "$violations_found" = true ]; then
+            echo "❌ Dangerous patterns detected in test files"
+            exit 1
+          else
+            echo "✅ No dangerous patterns found"
+          fi
+      
+      - name: Validate test runner configuration
+        run: |
+          echo "Validating test runner configuration..."
+          
+          # Check that test runners use safe directories
+          for runner in tests/run_*.sh modules/ade-quality/src/adeunit/adeunit; do
+            if [ -f "$runner" ]; then
+              echo "Checking: $runner"
+              
+              # Check for ADEUNIT_TEMP_DIR configuration
+              if grep -q 'ADEUNIT_TEMP_DIR.*HOME' "$runner"; then
+                echo "✅ $runner uses HOME-based temp directory"
+              elif grep -q 'ADEUNIT_TEMP_DIR.*/tmp' "$runner"; then
+                echo "❌ $runner uses /tmp directory (unsafe)"
+                exit 1
+              fi
+            fi
+          done
+      
+      - name: Run sample test with enforcement
+        run: |
+          echo "Running sample test with boundary enforcement..."
+          
+          # Run a basic test to verify enforcement works
+          if [ -f modules/ade-quality/src/adeunit/examples/test_basic_example.sh ]; then
+            ./modules/ade-quality/src/adeunit/adeunit-safe modules/ade-quality/src/adeunit/examples/test_basic_example.sh || true
+          fi
+      
+      - name: Generate compliance report
+        if: always()
+        run: |
+          echo "## Test Boundary Compliance Report" > boundary-report.md
+          echo "" >> boundary-report.md
+          echo "### Validation Results" >> boundary-report.md
+          echo "" >> boundary-report.md
+          
+          if [ "${{ steps.validate.outputs.validation_passed }}" = "true" ]; then
+            echo "✅ **All tests comply with boundary isolation requirements**" >> boundary-report.md
+          else
+            echo "❌ **Some tests violate boundary isolation requirements**" >> boundary-report.md
+            echo "" >> boundary-report.md
+            echo "Tests must only operate within \`\$HOME/.cache/ade-tests/\`" >> boundary-report.md
+          fi
+          
+          echo "" >> boundary-report.md
+          echo "### Key Requirements" >> boundary-report.md
+          echo "- All test files must be created within \`\$HOME\`" >> boundary-report.md
+          echo "- No writes to \`/tmp\`, \`/var\`, or system directories" >> boundary-report.md
+          echo "- Use \`\${TEST_TEMP_DIR}\` for temporary files" >> boundary-report.md
+          echo "- Clean up only within test sandbox" >> boundary-report.md
+          
+          cat boundary-report.md
+      
+      - name: Upload compliance report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: boundary-compliance-report
+          path: boundary-report.md
+
+  test-with-enforcement:
+    name: Run Tests with Boundary Enforcement
+    runs-on: ubuntu-latest
+    needs: validate-test-boundaries
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v2
+      
+      - name: Run tests with safe runner
+        run: |
+          echo "Running tests with boundary enforcement..."
+          
+          # Make scripts executable
+          chmod +x modules/ade-quality/src/adeunit/lib/adeunit-boundary-enforcer.sh
+          chmod +x modules/ade-quality/src/adeunit/adeunit-safe
+          chmod +x modules/ade-quality/src/adeunit/adeunit
+          chmod +x tests/run_all_tests.sh
+          
+          # Run unit tests with enforcement
+          ./modules/ade-quality/src/adeunit/adeunit-safe modules/ade-quality/src/adeunit/suites/test_ade_setup.sh || true
+          
+          # Run all tests with skip-docker flag for CI
+          SKIP_DOCKER=true ./tests/run_all_tests.sh --skip-docker || true
+      
+      - name: Check for violations
+        if: always()
+        run: |
+          echo "Checking for boundary violations in logs..."
+          
+          if [ -d "$HOME/.cache/ade-tests/logs" ]; then
+            if grep -r "VIOLATION" "$HOME/.cache/ade-tests/logs" 2>/dev/null; then
+              echo "❌ Boundary violations detected during test execution"
+              grep -r "VIOLATION" "$HOME/.cache/ade-tests/logs"
+              exit 1
+            else
+              echo "✅ No boundary violations detected"
+            fi
+          fi

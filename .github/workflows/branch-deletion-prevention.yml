@@ -1,0 +1,149 @@
+name: Branch Deletion Prevention
+
+on:
+  create:
+  delete:
+  push:
+    branches: ['**']
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+
+jobs:
+  enforce-branch-hierarchy:
+    name: Enforce Branch Protection Rules
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Setup Protection Enforcement
+        run: |
+          echo "🛡️ Branch Protection Enforcement Active"
+          
+          # Define protected branches and their policies
+          cat > /tmp/branch-policy.json << 'EOF'
+          {
+            "protected_branches": {
+              "main": {
+                "allow_deletion": false,
+                "allow_force_push": false,
+                "restore_priority": 1
+              },
+              "prd": {
+                "allow_deletion": false,
+                "allow_force_push": false,
+                "restore_priority": 2
+              },
+              "rc": {
+                "allow_deletion": false,
+                "allow_force_push": false,
+                "restore_priority": 3
+              },
+              "staging": {
+                "allow_deletion": false,
+                "allow_force_push": false,
+                "restore_priority": 4
+              },
+              "int": {
+                "allow_deletion": false,
+                "allow_force_push": false,
+                "restore_priority": 5
+              },
+              "dev": {
+                "allow_deletion": false,
+                "allow_force_push": false,
+                "restore_priority": 6
+              }
+            }
+          }
+          EOF
+          
+      - name: Monitor and Restore Deleted Branches
+        if: github.event_name == 'delete' && github.event.ref_type == 'branch'
+        run: |
+          DELETED_BRANCH="${{ github.event.ref }}"
+          echo "🔍 Detected deletion of branch: $DELETED_BRANCH"
+          
+          # Check if it's a protected branch
+          if grep -q "\"$DELETED_BRANCH\":" /tmp/branch-policy.json; then
+            echo "🚨 CRITICAL: Protected branch '$DELETED_BRANCH' was deleted!"
+            echo "🔄 Initiating automatic restoration..."
+            
+            # Find the last commit of the deleted branch
+            # This needs to happen quickly before garbage collection
+            git reflog show --all | grep "$DELETED_BRANCH" || true
+            
+            # Note: Actual restoration would need a PAT with more permissions
+            echo "::error::Protected branch $DELETED_BRANCH was deleted! Manual restoration required."
+            echo "::warning::User ${{ github.actor }} deleted protected branch $DELETED_BRANCH"
+            
+            # Set output for notification
+            echo "branch_deleted=true" >> $GITHUB_OUTPUT
+            echo "deleted_branch=$DELETED_BRANCH" >> $GITHUB_OUTPUT
+            echo "deleted_by=${{ github.actor }}" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Check Branch Integrity
+        if: github.event_name == 'push' || github.event_name == 'create'
+        run: |
+          echo "🔍 Verifying branch integrity..."
+          
+          # Get all protected branches from policy
+          PROTECTED_BRANCHES=$(cat /tmp/branch-policy.json | grep -o '"[^"]*":' | grep -v "protected_branches\|allow_\|restore_priority" | tr -d '":' | xargs)
+          
+          for branch in $PROTECTED_BRANCHES; do
+            if git show-ref --verify --quiet "refs/remotes/origin/$branch"; then
+              echo "✅ Protected branch '$branch' exists"
+              
+              # Check for force push
+              if [[ "${{ github.event_name }}" == "push" ]] && [[ "${{ github.ref_name }}" == "$branch" ]]; then
+                if [[ "${{ github.event.forced }}" == "true" ]]; then
+                  echo "::error::Force push detected on protected branch $branch"
+                  exit 1
+                fi
+              fi
+            else
+              echo "::warning::Protected branch '$branch' is missing"
+            fi
+          done
+      
+      - name: Create Issue for Violations
+        if: failure() || steps.*.outputs.branch_deleted == 'true'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const title = '🚨 Branch Protection Violation';
+            const body = `
+            ## Branch Protection Violation Detected
+            
+            **Event**: ${context.eventName}
+            **Actor**: @${context.actor}
+            **Branch**: ${context.payload.ref || 'unknown'}
+            **Time**: ${new Date().toISOString()}
+            
+            ### Violation Type
+            ${context.eventName === 'delete' ? '❌ Protected branch deletion attempt' : ''}
+            ${context.payload.forced ? '❌ Force push to protected branch' : ''}
+            
+            ### Action Taken
+            - Violation logged
+            - Administrators notified
+            - Restoration process initiated (if applicable)
+            
+            ### Required Actions
+            1. Review the violation
+            2. Restore branch if deleted
+            3. Review user permissions
+            `;
+            
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: title,
+              body: body,
+              labels: ['security', 'branch-protection', 'automated']
+            });

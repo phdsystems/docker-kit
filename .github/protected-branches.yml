@@ -1,0 +1,30 @@
+# Protected Branches Configuration
+# These branches should NEVER be deleted
+
+protected_branches:
+  - main
+  - dev
+  - int
+  - staging
+  - rc
+  - prd
+
+# Branch hierarchy (merges should follow this flow)
+merge_flow:
+  - feature/* → dev
+  - dev → int
+  - int → staging
+  - staging → rc
+  - rc → prd
+  - hotfix/* → prd (emergency only)
+
+# Merge policies
+policies:
+  always_preserve_branch: true
+  require_pr_for_protected: true
+  no_force_push: true
+  no_direct_commits: true
+
+# CLI merge command template (for team reference)
+safe_merge_command: |
+  gh pr merge <PR_NUMBER> --merge --delete-branch=false

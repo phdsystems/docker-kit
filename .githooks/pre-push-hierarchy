@@ -1,0 +1,63 @@
+#!/bin/bash
+# Pre-push hook to prevent direct pushes to environment branches
+
+# Define hierarchy
+declare -A HIERARCHY=(
+    ["int"]="dev"
+    ["uat"]="int"
+    ["prd"]="uat"
+    ["main"]="prd"
+)
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+# Read the push info
+while read local_ref local_sha remote_ref remote_sha; do
+    # Extract branch name
+    BRANCH="${remote_ref#refs/heads/}"
+    
+    # Check if this branch is in our hierarchy
+    if [[ -n "${HIERARCHY[$BRANCH]}" ]]; then
+        ALLOWED_SOURCE="${HIERARCHY[$BRANCH]}"
+        
+        echo -e "${YELLOW}⚠️  Pushing to protected branch: $BRANCH${NC}"
+        
+        # Check if this is a merge commit
+        MERGE_BASE=$(git merge-base HEAD "${ALLOWED_SOURCE}" 2>/dev/null)
+        
+        if [ -z "$MERGE_BASE" ]; then
+            echo -e "${RED}❌ Cannot push to $BRANCH${NC}"
+            echo -e "${RED}   This branch only accepts merges from: $ALLOWED_SOURCE${NC}"
+            echo ""
+            echo "Proper flow:"
+            echo "  1. Push your changes to $ALLOWED_SOURCE"
+            echo "  2. Create a PR from $ALLOWED_SOURCE to $BRANCH"
+            echo "  3. Merge via GitHub PR (not local push)"
+            echo ""
+            echo "Branch hierarchy:"
+            echo "  dev → int → uat → prd → main"
+            exit 1
+        fi
+        
+        # Check if all commits are merge commits
+        COMMITS=$(git rev-list "${remote_sha}..${local_sha}")
+        for commit in $COMMITS; do
+            PARENT_COUNT=$(git rev-list --parents -n 1 "$commit" | wc -w)
+            PARENT_COUNT=$((PARENT_COUNT - 1))
+            
+            if [ "$PARENT_COUNT" -eq 1 ]; then
+                echo -e "${RED}❌ Direct commit detected: $(git log -1 --oneline $commit)${NC}"
+                echo -e "${RED}   Only merge commits from $ALLOWED_SOURCE are allowed on $BRANCH${NC}"
+                exit 1
+            fi
+        done
+        
+        echo -e "${GREEN}✅ Push appears to be a valid merge${NC}"
+    fi
+done
+
+exit 0

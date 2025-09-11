@@ -1,0 +1,63 @@
+# Environment files
+.env
+.env.local
+*.env
+
+# Docker volumes
+data/
+logs/
+exports/
+
+# Build artifacts
+*.tar
+*.tar.gz
+build/
+dist/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Test artifacts
+test-results/
+coverage/
+*.log
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.bak
+
+# API/UI specific (if added later)
+api/node_modules/
+api/dist/
+ui/node_modules/
+ui/build/
+ui/dist/
+
+# Python cache (for API)
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Documentation build
+docs/_build/
+docs/.doctrees/
+
+# Backup files
+backup/
+*.backup
+
+# Local development
+local/
+.local/
+
+# Docker override files
+docker-compose.override.yml
+docker-compose.local.yml

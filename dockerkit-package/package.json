@@ -1,0 +1,58 @@
+{
+  "name": "@phdsystems/dockerkit",
+  "version": "1.0.0",
+  "description": "Docker compliance and management toolkit for production environments",
+  "main": "index.js",
+  "bin": {
+    "dck": "./bin/dck",
+    "dockerkit": "./bin/dockerkit",
+    "docker-comply": "./bin/docker-comply",
+    "docker-template": "./bin/docker-template"
+  },
+  "scripts": {
+    "postinstall": "node scripts/postinstall.js",
+    "test": "bash tests/run_tests.sh",
+    "build": "make build",
+    "package": "make package",
+    "clean": "make clean"
+  },
+  "keywords": [
+    "docker",
+    "compliance",
+    "security",
+    "devops",
+    "toolkit",
+    "container",
+    "orchestration",
+    "templates",
+    "best-practices"
+  ],
+  "author": "PHD Systems",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/phdsystems/dockerkit.git"
+  },
+  "bugs": {
+    "url": "https://github.com/phdsystems/dockerkit/issues"
+  },
+  "homepage": "https://github.com/phdsystems/dockerkit#readme",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "os": [
+    "linux",
+    "darwin"
+  ],
+  "preferGlobal": true,
+  "files": [
+    "bin/",
+    "src/",
+    "lib/",
+    "templates/",
+    "docs/",
+    "scripts/",
+    "LICENSE",
+    "README.md"
+  ]
+}

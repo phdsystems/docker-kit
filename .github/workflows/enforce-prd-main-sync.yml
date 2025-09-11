@@ -1,0 +1,173 @@
+name: Enforce PRD-Main Synchronization
+
+on:
+  push:
+    branches:
+      - main
+      - prd
+  pull_request:
+    branches:
+      - main
+      - prd
+  schedule:
+    # Check every hour
+    - cron: '0 * * * *'
+  workflow_dispatch:
+
+jobs:
+  check-sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Check if main and prd are in sync
+        id: check
+        run: |
+          git fetch origin main prd
+          
+          # Get commit hashes
+          MAIN_HASH=$(git rev-parse origin/main)
+          PRD_HASH=$(git rev-parse origin/prd)
+          
+          echo "main commit: $MAIN_HASH"
+          echo "prd commit: $PRD_HASH"
+          
+          if [ "$MAIN_HASH" = "$PRD_HASH" ]; then
+            echo "✅ Branches are in sync"
+            echo "in_sync=true" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Branches are out of sync!"
+            echo "in_sync=false" >> $GITHUB_OUTPUT
+            
+            # Check which is ahead
+            MAIN_AHEAD=$(git rev-list --count origin/prd..origin/main)
+            PRD_AHEAD=$(git rev-list --count origin/main..origin/prd)
+            
+            echo "main_ahead=$MAIN_AHEAD" >> $GITHUB_OUTPUT
+            echo "prd_ahead=$PRD_AHEAD" >> $GITHUB_OUTPUT
+            
+            if [ "$MAIN_AHEAD" -gt 0 ]; then
+              echo "⚠️ main is $MAIN_AHEAD commits ahead of prd"
+            fi
+            if [ "$PRD_AHEAD" -gt 0 ]; then
+              echo "⚠️ prd is $PRD_AHEAD commits ahead of main"
+            fi
+          fi
+      
+      - name: Auto-sync prd with main (if main is ahead)
+        if: steps.check.outputs.in_sync == 'false' && steps.check.outputs.main_ahead > '0' && steps.check.outputs.prd_ahead == '0'
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          
+          # Fast-forward prd to main
+          git checkout prd
+          git merge --ff-only origin/main
+          git push origin prd
+          
+          echo "✅ Auto-synced prd with main"
+      
+      - name: Create sync issue if branches diverged
+        if: steps.check.outputs.in_sync == 'false' && steps.check.outputs.prd_ahead > '0'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const issueTitle = '🚨 CRITICAL: Production (prd) and Main branches have diverged';
+            const issueBody = `
+            ## Branch Synchronization Alert
+            
+            The \`prd\` and \`main\` branches are out of sync and have diverged.
+            
+            ### Status:
+            - main is ${process.env.MAIN_AHEAD} commits ahead of prd
+            - prd is ${process.env.PRD_AHEAD} commits ahead of main
+            
+            ### Required Action:
+            This requires manual intervention to resolve the divergence.
+            
+            ### Options:
+            1. Force prd to match main (lose prd-specific commits):
+               \`\`\`bash
+               git checkout prd
+               git reset --hard origin/main
+               git push --force origin prd
+               \`\`\`
+            
+            2. Merge main into prd (keep both histories):
+               \`\`\`bash
+               git checkout prd
+               git merge origin/main
+               git push origin prd
+               \`\`\`
+            
+            3. Review differences and cherry-pick:
+               \`\`\`bash
+               git log --oneline origin/main..origin/prd
+               git log --oneline origin/prd..origin/main
+               \`\`\`
+            
+            **⚠️ Production deployments should be blocked until this is resolved.**
+            `;
+            
+            // Check if issue already exists
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'sync-required'
+            });
+            
+            if (issues.data.length === 0) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: issueTitle,
+                body: issueBody,
+                labels: ['sync-required', 'critical', 'production']
+              });
+            }
+        env:
+          MAIN_AHEAD: ${{ steps.check.outputs.main_ahead }}
+          PRD_AHEAD: ${{ steps.check.outputs.prd_ahead }}
+      
+      - name: Fail if out of sync (for PRs)
+        if: github.event_name == 'pull_request' && steps.check.outputs.in_sync == 'false'
+        run: |
+          echo "❌ Cannot merge: prd and main branches are out of sync"
+          exit 1
+
+  auto-sync-on-main-push:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Sync prd with main
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          
+          git fetch origin prd
+          git checkout prd
+          git merge --ff-only origin/main || {
+            echo "⚠️ Cannot fast-forward. Manual intervention required."
+            exit 1
+          }
+          git push origin prd
+          
+          echo "✅ Production branch updated with main"

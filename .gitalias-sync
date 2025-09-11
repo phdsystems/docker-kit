@@ -1,0 +1,40 @@
+[alias]
+    # Check if main and prd are in sync
+    sync-check = "!f() { \
+        git fetch origin main prd --quiet; \
+        MAIN=$(git rev-parse origin/main); \
+        PRD=$(git rev-parse origin/prd); \
+        if [ \"$MAIN\" = \"$PRD\" ]; then \
+            echo '✅ main and prd are in sync'; \
+        else \
+            echo '❌ main and prd are OUT OF SYNC!'; \
+            echo \"main: $MAIN\"; \
+            echo \"prd:  $PRD\"; \
+            echo ''; \
+            git rev-list --left-right --count origin/main...origin/prd | \
+            awk '{print \"main is \"$1\" commits ahead, prd is \"$2\" commits ahead\"}'; \
+        fi; \
+    }; f"
+    
+    # Auto-sync prd with main (if safe)
+    sync-prd = "!f() { \
+        git fetch origin main prd; \
+        if [ $(git rev-list --count origin/prd..origin/main) -gt 0 ] && \
+           [ $(git rev-list --count origin/main..origin/prd) -eq 0 ]; then \
+            echo 'Fast-forwarding prd to main...'; \
+            git checkout prd && \
+            git merge --ff-only origin/main && \
+            git push origin prd && \
+            echo '✅ Synced prd with main'; \
+        else \
+            echo '⚠️  Cannot auto-sync: branches have diverged or are already in sync'; \
+        fi; \
+    }; f"
+    
+    # Show sync status with visual graph
+    sync-status = "!f() { \
+        git fetch origin main prd --quiet; \
+        echo 'Branch Sync Status:'; \
+        git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%Creset' \
+            --abbrev-commit --date=relative origin/main origin/prd -10; \
+    }; f"

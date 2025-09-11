@@ -1,0 +1,86 @@
+# syntax=docker/dockerfile:1.4
+# -----------------------------------------------------------------------------
+# DCK - Docker Management Toolkit
+# Minimal Production Build (Scratch-based with essentials)
+# -----------------------------------------------------------------------------
+
+# Stage 1: Build static busybox with required tools
+FROM alpine:3.19.1 AS busybox-builder
+
+RUN apk add --no-cache \
+    busybox-static
+
+# Stage 2: Collect required binaries and libraries
+FROM alpine:3.19.1 AS collector
+
+# Install minimal required packages
+RUN apk add --no-cache \
+    bash \
+    curl \
+    jq \
+    docker-cli \
+    ca-certificates \
+    tzdata
+
+# Copy scripts and prepare
+COPY ./src/ /opt/dck/src/
+COPY ./lib/ /opt/dck/lib/
+COPY ./docs/ /opt/dck/docs/
+COPY ./dck /opt/dck/dck
+
+# Make scripts executable
+RUN chmod +x /opt/dck/dck /opt/dck/src/*.sh
+
+# Create user and group files
+RUN echo "dck:x:1000:1000::/home/dck:/bin/sh" > /etc/passwd.minimal && \
+    echo "dck:x:1000:" > /etc/group.minimal
+
+# Stage 3: Final minimal image from scratch
+FROM scratch
+
+# Metadata
+LABEL maintainer="DCK Team" \
+      version="1.0.0-minimal" \
+      description="DCK - Minimal Docker Management Toolkit" \
+      org.opencontainers.image.source="https://github.com/phdsystems/dck"
+
+# Copy certificates and timezone data
+COPY --from=collector /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=collector /usr/share/zoneinfo /usr/share/zoneinfo
+
+# Copy user/group files
+COPY --from=collector /etc/passwd.minimal /etc/passwd
+COPY --from=collector /etc/group.minimal /etc/group
+
+# Copy busybox for basic utilities
+COPY --from=busybox-builder /bin/busybox.static /bin/busybox
+
+# Create basic shell utilities via busybox
+RUN ["/bin/busybox", "sh", "-c", \
+     "for tool in sh ls cat echo mkdir chmod chown rm; do /bin/busybox ln -s /bin/busybox /bin/$tool; done"]
+
+# Copy required binaries
+COPY --from=collector /bin/bash /bin/
+COPY --from=collector /usr/bin/jq /usr/bin/
+COPY --from=collector /usr/bin/curl /usr/bin/
+COPY --from=collector /usr/bin/docker /usr/bin/
+
+# Copy DCK files with proper ownership
+COPY --from=collector --chown=1000:1000 /opt/dck /opt/dck
+
+# Create necessary directories
+RUN ["/bin/busybox", "sh", "-c", "mkdir -p /tmp /var/lib/dck/data /var/lib/dck/logs"]
+
+# Environment
+ENV PATH="/opt/dck:/bin:/usr/bin" \
+    HOME="/home/dck" \
+    USER="dck"
+
+# Switch to non-root user
+USER 1000:1000
+
+WORKDIR /opt/dck
+
+# Entry point
+ENTRYPOINT ["/bin/bash", "/opt/dck/dck"]
+CMD ["--help"]

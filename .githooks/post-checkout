@@ -1,0 +1,19 @@
+#!/bin/bash
+# Git hook to clean up local branches after checkout
+# This hook runs after git checkout
+
+CURRENT_BRANCH=$(git branch --show-current)
+PROTECTED_BRANCHES="main|master|dev|develop"
+
+# Only run if we're on a feature branch
+if [[ "$CURRENT_BRANCH" == feature/* ]] || [[ "$CURRENT_BRANCH" == bugfix/* ]] || [[ "$CURRENT_BRANCH" == hotfix/* ]]; then
+    echo "🧹 Cleaning up inactive local branches..."
+    
+    # Get all local branches except current
+    for branch in $(git branch | grep -v "^\*" | grep -vE "$PROTECTED_BRANCHES"); do
+        # Check if branch is fully merged
+        if git branch --merged | grep -q "$branch"; then
+            git branch -d "$branch" 2>/dev/null && echo "  ✅ Deleted merged branch: $branch"
+        fi
+    done
+fi

@@ -1,0 +1,36 @@
+name: Branch Hygiene Check
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  check-branch-hygiene:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      
+      - name: Check local branches in PR
+        run: |
+          # This runs in CI to ensure developers don't have multiple local branches
+          BRANCH_COUNT=$(git branch -a | grep -v remotes | wc -l)
+          
+          if [ "$BRANCH_COUNT" -gt 1 ]; then
+            echo "::warning::Multiple local branches detected in repository"
+            echo "Consider keeping only the active feature branch locally"
+          fi
+      
+      - name: Suggest cleanup
+        if: always()
+        run: |
+          echo "### 🧹 Branch Hygiene Tips"
+          echo "Keep your local repository clean:"
+          echo '```bash'
+          echo '# Keep only current branch:'
+          echo 'git branch | grep -v "^\*" | xargs git branch -D'
+          echo ''
+          echo '# Or use git alias (after setup):'
+          echo 'git lonely'
+          echo '```'

@@ -1,0 +1,225 @@
+name: Enforce Branch Hierarchy
+
+on:
+  pull_request:
+    branches:
+      - int
+      - uat
+      - prd
+      - main
+  push:
+    branches:
+      - int
+      - uat
+      - prd
+      - main
+
+env:
+  # Define the strict hierarchy
+  # Each branch can ONLY receive merges from the branch listed as its source
+  HIERARCHY: |
+    {
+      "int": "rc",
+      "uat": "int",
+      "prd": "uat",
+      "main": "prd"
+    }
+  # RC branches can only come from dev
+  RC_SOURCE: "dev"
+
+jobs:
+  enforce-hierarchy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      statuses: write
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      
+      - name: Validate Branch Hierarchy
+        id: validate
+        run: |
+          # Get target branch (where we're merging TO)
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            TARGET_BRANCH="${{ github.base_ref }}"
+            SOURCE_BRANCH="${{ github.head_ref }}"
+            IS_PR="true"
+          else
+            TARGET_BRANCH="${GITHUB_REF#refs/heads/}"
+            SOURCE_BRANCH=""
+            IS_PR="false"
+          fi
+          
+          echo "Target branch: $TARGET_BRANCH"
+          echo "Source branch: $SOURCE_BRANCH"
+          echo "Event: ${{ github.event_name }}"
+          
+          # Parse hierarchy
+          ALLOWED_SOURCE=$(echo "$HIERARCHY" | jq -r ".\"$TARGET_BRANCH\"")
+          
+          if [ "$ALLOWED_SOURCE" = "null" ]; then
+            echo "✅ Branch $TARGET_BRANCH is not in the restricted hierarchy"
+            echo "valid=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          echo "ℹ️ Branch $TARGET_BRANCH only accepts merges from: $ALLOWED_SOURCE"
+          
+          # For push events, check if it was a direct commit or a merge
+          if [ "$IS_PR" = "false" ]; then
+            # Check if the last commit is a merge commit
+            COMMIT_PARENTS=$(git rev-list --parents -n 1 HEAD | wc -w)
+            
+            if [ "$COMMIT_PARENTS" -le 2 ]; then
+              echo "❌ Direct commits to $TARGET_BRANCH are not allowed!"
+              echo "❌ Only merges from '$ALLOWED_SOURCE' branch are permitted."
+              echo "valid=false" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+            
+            # For merge commits, try to determine source branch
+            # This is complex in push events, so we mainly rely on PR checks
+            echo "⚠️ Push event detected. Ensure this was a proper merge."
+            echo "valid=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          # For PRs, validate source branch
+          # Special handling for RC branches
+          if [ "$ALLOWED_SOURCE" = "rc" ]; then
+            # INT accepts any rc/* branch
+            if [[ "$SOURCE_BRANCH" == rc/* ]]; then
+              echo "✅ Valid RC branch merge: $SOURCE_BRANCH → $TARGET_BRANCH"
+              echo "valid=true" >> $GITHUB_OUTPUT
+              exit 0
+            else
+              echo "❌ Invalid source branch!"
+              echo "❌ $TARGET_BRANCH only accepts merges from rc/* branches"
+              echo "❌ Attempted merge from: $SOURCE_BRANCH"
+              echo "valid=false" >> $GITHUB_OUTPUT
+              echo "allowed_source=rc/*" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+          fi
+          
+          if [ "$SOURCE_BRANCH" != "$ALLOWED_SOURCE" ]; then
+            echo "❌ Invalid source branch!"
+            echo "❌ $TARGET_BRANCH only accepts merges from: $ALLOWED_SOURCE"
+            echo "❌ Attempted merge from: $SOURCE_BRANCH"
+            echo "valid=false" >> $GITHUB_OUTPUT
+            echo "allowed_source=$ALLOWED_SOURCE" >> $GITHUB_OUTPUT
+          else
+            echo "✅ Valid hierarchy: $SOURCE_BRANCH → $TARGET_BRANCH"
+            echo "valid=true" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Comment on PR (if invalid)
+        if: github.event_name == 'pull_request' && steps.validate.outputs.valid == 'false'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const target = context.payload.pull_request.base.ref;
+            const source = context.payload.pull_request.head.ref;
+            const allowed = '${{ steps.validate.outputs.allowed_source }}';
+            
+            const comment = `## ❌ Branch Hierarchy Violation
+            
+            This pull request violates the branch hierarchy rules.
+            
+            ### Branch Hierarchy:
+            \`\`\`
+            dev → int → uat → prd → main
+            \`\`\`
+            
+            ### Issue:
+            - **Target branch**: \`${target}\`
+            - **Source branch**: \`${source}\` ❌
+            - **Required source**: \`${allowed}\` ✅
+            
+            ### How to fix:
+            1. Close this PR
+            2. Create a new PR from \`${allowed}\` to \`${target}\`
+            3. Ensure your changes are first merged to \`${allowed}\`
+            
+            ### Promotion Flow:
+            1. Develop in feature branches
+            2. Merge features to \`dev\`
+            3. Promote \`dev\` → \`int\` for integration testing
+            4. Promote \`int\` → \`uat\` for user acceptance testing
+            5. Promote \`uat\` → \`prd\` for production
+            6. Sync \`prd\` → \`main\` as stable release
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+      
+      - name: Set Status Check
+        if: always()
+        run: |
+          if [ "${{ steps.validate.outputs.valid }}" = "true" ]; then
+            echo "✅ Hierarchy check passed"
+            exit 0
+          else
+            echo "❌ Hierarchy check failed"
+            exit 1
+          fi
+
+  block-direct-commits:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+      
+      - name: Check for Direct Commits
+        run: |
+          BRANCH="${GITHUB_REF#refs/heads/}"
+          
+          # List of protected branches
+          PROTECTED_BRANCHES="int uat prd main"
+          
+          if echo "$PROTECTED_BRANCHES" | grep -w "$BRANCH" > /dev/null; then
+            # Check if last commit is a merge commit
+            PARENT_COUNT=$(git rev-list --parents -n 1 HEAD | wc -w)
+            
+            # Subtract 1 for the commit itself
+            PARENT_COUNT=$((PARENT_COUNT - 1))
+            
+            if [ "$PARENT_COUNT" -eq 1 ]; then
+              # This is a direct commit, not a merge
+              echo "❌ Direct commit detected on protected branch: $BRANCH"
+              echo "Only merge commits are allowed on $BRANCH"
+              
+              # Get commit info
+              COMMIT_SHA=$(git rev-parse HEAD)
+              COMMIT_MSG=$(git log -1 --pretty=%B)
+              COMMITTER=$(git log -1 --pretty=%cn)
+              
+              echo ""
+              echo "Rejected commit:"
+              echo "  SHA: $COMMIT_SHA"
+              echo "  Message: $COMMIT_MSG"
+              echo "  Committer: $COMMITTER"
+              echo ""
+              echo "Please use the proper promotion flow:"
+              echo "  dev → int → uat → prd → main"
+              
+              # This will fail the workflow
+              exit 1
+            else
+              echo "✅ Merge commit detected (parents: $PARENT_COUNT)"
+            fi
+          else
+            echo "ℹ️ Branch $BRANCH is not in the protected hierarchy"
+          fi

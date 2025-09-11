@@ -1,0 +1,182 @@
+#!/bin/bash
+
+# Mock Docker command for testing
+# This provides stub responses for Docker commands used in tests
+
+case "$1" in
+    --version)
+        echo "Docker version 24.0.0, build test"
+        exit 0
+        ;;
+    
+    images)
+        if [[ "$2" == "-q" ]]; then
+            echo "abc123def456"
+            echo "789ghi012jkl"
+        elif [[ "$*" == *"--format"*"json"* ]]; then
+            echo '{"Repository":"nginx","Tag":"latest","ID":"abc123","Size":"142MB"}'
+            echo '{"Repository":"alpine","Tag":"3.18","ID":"def456","Size":"7.34MB"}'
+        else
+            echo "REPOSITORY   TAG       IMAGE ID       CREATED        SIZE"
+            echo "nginx        latest    abc123def456   2 days ago     142MB"
+            echo "alpine       3.18      789ghi012jkl   1 week ago     7.34MB"
+            echo "<none>       <none>    345mno678pqr   3 weeks ago    0B"
+        fi
+        exit 0
+        ;;
+    
+    ps)
+        if [[ "$2" == "-q" ]]; then
+            echo "container1"
+            echo "container2"
+        elif [[ "$2" == "-aq" ]] || [[ "$2" == "-a" ]]; then
+            echo "container1"
+            echo "container2"
+            echo "container3"
+        elif [[ "$*" == *"--format"*"json"* ]]; then
+            echo '{"Names":"web","Image":"nginx:latest","Status":"Up 2 hours","Ports":"80/tcp"}'
+            echo '{"Names":"db","Image":"postgres:15","Status":"Up 1 day","Ports":"5432/tcp"}'
+        else
+            echo "CONTAINER ID   IMAGE          COMMAND       CREATED        STATUS        PORTS     NAMES"
+            echo "container1     nginx:latest   nginx         2 hours ago    Up 2 hours    80/tcp    web"
+            echo "container2     postgres:15    postgres      1 day ago      Up 1 day      5432/tcp  db"
+        fi
+        exit 0
+        ;;
+    
+    volume)
+        case "$2" in
+            ls)
+                if [[ "$3" == "-q" ]]; then
+                    echo "data_volume"
+                    echo "backup_volume"
+                elif [[ "$*" == *"--format"*"json"* ]]; then
+                    echo '{"Name":"data_volume","Driver":"local","Scope":"local"}'
+                    echo '{"Name":"backup_volume","Driver":"local","Scope":"local"}'
+                else
+                    echo "DRIVER    VOLUME NAME"
+                    echo "local     data_volume"
+                    echo "local     backup_volume"
+                fi
+                ;;
+            inspect)
+                echo '[{
+                    "Name": "data_volume",
+                    "Driver": "local",
+                    "Mountpoint": "/var/lib/docker/volumes/data_volume/_data",
+                    "Labels": {},
+                    "Scope": "local"
+                }]'
+                ;;
+        esac
+        exit 0
+        ;;
+    
+    network)
+        case "$2" in
+            ls)
+                if [[ "$3" == "-q" ]]; then
+                    echo "bridge"
+                    echo "host"
+                    echo "mynetwork"
+                elif [[ "$*" == *"--format"*"json"* ]]; then
+                    echo '{"Name":"bridge","Driver":"bridge","Scope":"local"}'
+                    echo '{"Name":"host","Driver":"host","Scope":"local"}'
+                    echo '{"Name":"mynetwork","Driver":"bridge","Scope":"local"}'
+                else
+                    echo "NETWORK ID     NAME        DRIVER    SCOPE"
+                    echo "abc123         bridge      bridge    local"
+                    echo "def456         host        host      local"
+                    echo "ghi789         mynetwork   bridge    local"
+                fi
+                ;;
+            inspect)
+                echo '[{
+                    "Name": "mynetwork",
+                    "Driver": "bridge",
+                    "Scope": "local",
+                    "IPAM": {
+                        "Config": [{"Subnet": "172.20.0.0/16"}]
+                    },
+                    "Containers": {}
+                }]'
+                ;;
+        esac
+        exit 0
+        ;;
+    
+    search)
+        echo "NAME                     DESCRIPTION                                     STARS     OFFICIAL"
+        echo "nginx                    Official build of Nginx.                        19000     [OK]"
+        echo "nginx/nginx-ingress      NGINX Ingress Controller for Kubernetes         100"
+        exit 0
+        ;;
+    
+    info)
+        echo "Client: Docker Engine - Community"
+        echo " Version:    24.0.0"
+        echo "Server: Docker Engine - Community"
+        echo " Containers: 3"
+        echo "  Running: 2"
+        echo "  Paused: 0"
+        echo "  Stopped: 1"
+        echo " Images: 5"
+        exit 0
+        ;;
+    
+    stats)
+        if [[ "$2" == "--no-stream" ]]; then
+            echo "CONTAINER ID   NAME    CPU %    MEM USAGE / LIMIT     MEM %    NET I/O          BLOCK I/O"
+            echo "container1     web     0.50%    128MiB / 1GiB         12.5%    1.2MB / 856KB    0B / 0B"
+            echo "container2     db      1.25%    512MiB / 2GiB         25.0%    5.6MB / 3.2MB    1.2MB / 856KB"
+        fi
+        exit 0
+        ;;
+    
+    system)
+        case "$2" in
+            df)
+                echo "TYPE            TOTAL     ACTIVE    SIZE      RECLAIMABLE"
+                echo "Images          5         3         1.2GB     500MB (41%)"
+                echo "Containers      3         2         100MB     50MB (50%)"
+                echo "Local Volumes   2         1         200MB     100MB (50%)"
+                echo "Build Cache     0         0         0B        0B"
+                ;;
+            prune)
+                echo "Deleted Containers:"
+                echo "container3"
+                echo ""
+                echo "Deleted Images:"
+                echo "345mno678pqr"
+                echo ""
+                echo "Total reclaimed space: 150MB"
+                ;;
+        esac
+        exit 0
+        ;;
+    
+    inspect)
+        # Return basic container/volume/network info
+        echo '[{
+            "Name": "test_object",
+            "Id": "abc123def456",
+            "Created": "2024-01-01T00:00:00Z",
+            "State": {"Status": "running"},
+            "NetworkSettings": {
+                "Networks": {
+                    "bridge": {
+                        "IPAddress": "172.17.0.2",
+                        "Gateway": "172.17.0.1"
+                    }
+                }
+            },
+            "Mounts": []
+        }]'
+        exit 0
+        ;;
+    
+    *)
+        echo "Error: Unknown docker command in mock: $*" >&2
+        exit 1
+        ;;
+esac

@@ -1,0 +1,139 @@
+version: '3.8'
+
+services:
+  # Primary PostgreSQL Database
+  postgres:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: postgres-primary
+    env_file: .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_INITDB_ARGS: ${POSTGRES_INITDB_ARGS}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init:/docker-entrypoint-initdb.d:ro
+      - ./postgresql.conf:/etc/postgresql/postgresql.conf:ro
+      - postgres_backup:/backup
+    command: >
+      postgres
+      -c config_file=/etc/postgresql/postgresql.conf
+      -c max_connections=${POSTGRES_MAX_CONNECTIONS}
+      -c shared_buffers=${POSTGRES_SHARED_BUFFERS}
+      -c effective_cache_size=${POSTGRES_EFFECTIVE_CACHE_SIZE}
+      -c maintenance_work_mem=${POSTGRES_MAINTENANCE_WORK_MEM}
+      -c work_mem=${POSTGRES_WORK_MEM}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # PostgreSQL Replica (optional)
+  postgres-replica:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: postgres-replica
+    env_file: .env
+    environment:
+      POSTGRES_REPLICATION_MODE: replica
+      POSTGRES_MASTER_HOST: postgres
+      POSTGRES_MASTER_PORT: 5432
+      POSTGRES_REPLICATION_USER: ${POSTGRES_REPLICATION_USER}
+      POSTGRES_REPLICATION_PASSWORD: ${POSTGRES_REPLICATION_PASSWORD}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_replica_data:/var/lib/postgresql/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles:
+      - replication
+
+  # pgAdmin Web Interface (optional)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: postgres-pgadmin
+    env_file: .env
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+    ports:
+      - "${PGADMIN_PORT}:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+      - ./servers.json:/pgadmin4/servers.json:ro
+    depends_on:
+      - postgres
+    restart: unless-stopped
+    profiles:
+      - tools
+
+  # PostgreSQL Exporter for Prometheus
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:latest
+    container_name: postgres-exporter
+    env_file: .env
+    environment:
+      DATA_SOURCE_NAME: "postgresql://${POSTGRES_EXPORTER_USER}:${POSTGRES_EXPORTER_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable"
+    ports:
+      - "${POSTGRES_EXPORTER_PORT}:9187"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    profiles:
+      - monitoring
+
+  # Backup Service
+  postgres-backup:
+    image: postgres:16-alpine
+    container_name: postgres-backup
+    env_file: .env
+    environment:
+      PGHOST: postgres
+      PGDATABASE: ${POSTGRES_DB}
+      PGUSER: ${POSTGRES_USER}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_backup:/backup
+      - ./backup-scripts:/scripts:ro
+    command: >
+      sh -c "
+      while true; do
+        echo 'Running backup at $$(date)';
+        pg_dumpall -U ${POSTGRES_USER} | gzip > /backup/backup_$$(date +%Y%m%d_%H%M%S).sql.gz;
+        find /backup -name 'backup_*.sql.gz' -mtime +${BACKUP_RETENTION_DAYS} -delete;
+        sleep 86400;
+      done
+      "
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles:
+      - backup
+
+volumes:
+  postgres_data:
+    driver: local
+  postgres_replica_data:
+    driver: local
+  postgres_backup:
+    driver: local
+  pgadmin_data:
+    driver: local
+
+networks:
+  default:
+    name: postgres-network
+    driver: bridge

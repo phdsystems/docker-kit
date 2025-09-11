@@ -1,0 +1,128 @@
+name: Protect Critical Branches
+
+on:
+  delete:
+  push:
+    branches:
+      - '*'
+  schedule:
+    # Check every hour for branch integrity
+    - cron: '0 * * * *'
+  workflow_dispatch:
+
+jobs:
+  protect-branches:
+    name: Enforce Branch Protection
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          
+      - name: Check and Restore Protected Branches
+        run: |
+          echo "🔒 Checking protected branches..."
+          
+          # List of protected branches
+          PROTECTED_BRANCHES=("main" "dev" "int" "staging" "rc" "prd")
+          
+          # Fetch all remote branches
+          git fetch --all
+          
+          # Check each protected branch
+          for branch in "${PROTECTED_BRANCHES[@]}"; do
+            echo "Checking $branch..."
+            
+            # Check if branch exists on remote
+            if git ls-remote --heads origin "$branch" | grep -q "$branch"; then
+              echo "✅ $branch exists"
+            else
+              echo "⚠️ WARNING: Protected branch '$branch' is missing!"
+              
+              # Try to find the last known commit for this branch
+              # Look in the reflog or recent commits
+              LAST_COMMIT=$(git reflog show --all | grep "refs/remotes/origin/$branch" | head -1 | awk '{print $1}')
+              
+              if [[ -n "$LAST_COMMIT" ]]; then
+                echo "🔄 Attempting to restore $branch from commit $LAST_COMMIT"
+                git checkout -b temp-restore "$LAST_COMMIT"
+                git push origin "temp-restore:$branch"
+                git branch -D temp-restore
+                echo "✅ Branch $branch restored!"
+                
+                # Create an issue to notify about the restoration
+                gh issue create \
+                  --title "⚠️ Protected Branch Restored: $branch" \
+                  --body "The protected branch '$branch' was deleted and has been automatically restored from commit $LAST_COMMIT. Please review." \
+                  --label "security,automated"
+              else
+                echo "❌ Could not find previous state of $branch to restore"
+                
+                # Create an issue for manual intervention
+                gh issue create \
+                  --title "🚨 Protected Branch Deleted: $branch" \
+                  --body "The protected branch '$branch' has been deleted and could not be automatically restored. Manual intervention required!" \
+                  --label "critical,security"
+              fi
+            fi
+          done
+          
+      - name: Prevent Force Push to Protected Branches
+        if: github.event_name == 'push'
+        run: |
+          BRANCH_NAME="${GITHUB_REF#refs/heads/}"
+          PROTECTED_BRANCHES=("main" "dev" "int" "staging" "rc" "prd")
+          
+          for protected in "${PROTECTED_BRANCHES[@]}"; do
+            if [[ "$BRANCH_NAME" == "$protected" ]]; then
+              echo "Checking for force push on protected branch $BRANCH_NAME..."
+              
+              # Check if this was a force push by comparing commits
+              if [[ "${{ github.event.forced }}" == "true" ]]; then
+                echo "❌ Force push detected on protected branch!"
+                
+                # Revert the force push
+                git push --force origin "${{ github.event.before }}:$BRANCH_NAME"
+                
+                # Create an issue
+                gh issue create \
+                  --title "🚨 Force Push Reverted: $BRANCH_NAME" \
+                  --body "A force push to protected branch '$BRANCH_NAME' was detected and reverted. Pusher: @${{ github.actor }}" \
+                  --label "security,automated" \
+                  --assignee "${{ github.actor }}"
+                
+                exit 1
+              fi
+            fi
+          done
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  audit-branch-operations:
+    name: Audit Branch Operations
+    runs-on: ubuntu-latest
+    if: github.event_name == 'delete'
+    
+    steps:
+      - name: Log Branch Deletion Attempt
+        run: |
+          echo "🔍 Branch deletion event detected"
+          echo "Ref: ${{ github.event.ref }}"
+          echo "Ref Type: ${{ github.event.ref_type }}"
+          echo "Pusher: ${{ github.event.pusher.name }}"
+          
+          if [[ "${{ github.event.ref_type }}" == "branch" ]]; then
+            DELETED_BRANCH="${{ github.event.ref }}"
+            PROTECTED_BRANCHES=("main" "dev" "int" "staging" "rc" "prd")
+            
+            for protected in "${PROTECTED_BRANCHES[@]}"; do
+              if [[ "$DELETED_BRANCH" == "$protected" ]]; then
+                echo "⚠️ CRITICAL: Attempted deletion of protected branch: $DELETED_BRANCH"
+                
+                # This will run AFTER deletion, so we need the restore job to handle it
+                echo "Restoration will be handled by protect-branches job"
+              fi
+            done
+          fi

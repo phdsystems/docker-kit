@@ -1,0 +1,21 @@
+[alias]
+    # Clean all local branches except current
+    cleanup = "!git branch | grep -v '^\\*' | xargs -r git branch -D"
+    
+    # Clean only merged branches
+    cleanup-merged = "!git branch --merged | grep -v '^\\*' | grep -v 'main\\|master\\|dev\\|develop' | xargs -r git branch -d"
+    
+    # Show branch status
+    branch-status = "!echo 'Local branches:' && git branch && echo '\nRemote branches you might need:' && git branch -r | head -10"
+    
+    # Safe checkout that cleans up after switching
+    sco = "!f() { git checkout \"$@\" && git branch --merged | grep -v '^\\*' | xargs -r git branch -d; }; f"
+    
+    # Checkout new feature branch and clean others
+    feature = "!f() { git checkout -b feature/\"$1\" origin/dev && git branch | grep -v '^\\*' | xargs -r git branch -D; }; f"
+    
+    # List branches with last commit date
+    branch-age = "!git for-each-ref --sort='-committerdate' --format='%(refname:short) %(committerdate:relative)' refs/heads/"
+    
+    # Delete all local branches except current
+    lonely = "!git branch | grep -v '^\\*' | xargs -r git branch -D && echo '✨ Now only on:' && git branch"

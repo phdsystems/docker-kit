@@ -1,0 +1,29 @@
+#!/bin/bash
+# Pre-commit hook to check prd-main sync before commits
+
+CURRENT_BRANCH=$(git branch --show-current)
+
+# Only check if committing to main or prd
+if [[ "$CURRENT_BRANCH" == "main" ]] || [[ "$CURRENT_BRANCH" == "prd" ]]; then
+    echo "🔍 Checking prd-main synchronization..."
+    
+    git fetch origin main prd --quiet
+    
+    MAIN_HASH=$(git rev-parse origin/main)
+    PRD_HASH=$(git rev-parse origin/prd)
+    
+    if [ "$MAIN_HASH" != "$PRD_HASH" ]; then
+        echo "❌ ERROR: main and prd branches are out of sync!"
+        echo "   main: $MAIN_HASH"
+        echo "   prd:  $PRD_HASH"
+        echo ""
+        echo "Please sync the branches before committing:"
+        echo "  git fetch origin"
+        echo "  git checkout prd"
+        echo "  git merge origin/main"
+        echo "  git push origin prd"
+        exit 1
+    fi
+    
+    echo "✅ Branches are in sync"
+fi

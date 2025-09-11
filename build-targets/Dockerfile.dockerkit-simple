@@ -1,0 +1,56 @@
+# DockerKit - Simple working build
+FROM alpine:3.19
+
+# Install required packages
+RUN apk add --no-cache \
+    bash \
+    curl \
+    jq \
+    git \
+    make \
+    grep \
+    sed \
+    coreutils \
+    ncurses \
+    less \
+    vim \
+    sudo \
+    docker-cli \
+    docker-cli-compose
+
+# Create dck user
+RUN addgroup -g 1000 dck && \
+    adduser -D -u 1000 -G dck -s /bin/bash dck && \
+    echo "dck ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+
+# Set up DockerKit directory
+WORKDIR /opt/dck
+
+# Copy DockerKit files
+COPY --chown=dck:dck ./src/ /opt/dck/src/
+COPY --chown=dck:dck ./lib/ /opt/dck/lib/
+COPY --chown=dck:dck ./docs/ /opt/dck/docs/
+COPY --chown=dck:dck ./dck /opt/dck/
+
+# Make scripts executable
+RUN chmod +x dck && \
+    chmod +x src/*.sh && \
+    ln -s /opt/dck/dck /usr/local/bin/dck
+
+# Create data directories
+RUN mkdir -p /var/lib/dck/data && \
+    mkdir -p /var/lib/dck/logs && \
+    chown -R dck:dck /var/lib/dck
+
+# Environment
+ENV PATH="/opt/dck:${PATH}"
+
+# Switch to dck user
+USER dck
+
+# Shell config
+RUN echo 'export PS1="\[\033[1;36m\]dockerkit\[\033[0m\]:\[\033[1;34m\]\w\[\033[0m\]$ "' >> ~/.bashrc && \
+    echo 'alias ll="ls -la"' >> ~/.bashrc && \
+    echo 'alias dk="dockerkit"' >> ~/.bashrc
+
+ENTRYPOINT ["/bin/bash"]

@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  # Redis Primary
+  redis:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: redis-primary
+    env_file: .env
+    command: >
+      redis-server
+      --requirepass ${REDIS_PASSWORD}
+      --maxmemory ${REDIS_MAXMEMORY}
+      --maxmemory-policy ${REDIS_MAXMEMORY_POLICY}
+      --appendonly ${REDIS_AOF_ENABLED}
+      --appendfsync ${REDIS_AOF_FSYNC}
+      --save "${REDIS_SAVE_SCHEDULE}"
+    ports:
+      - "${REDIS_PORT}:6379"
+    volumes:
+      - redis_data:/data
+      - ./redis.conf:/usr/local/etc/redis/redis.conf:ro
+    healthcheck:
+      test: ["CMD", "redis-cli", "--auth", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # RedisInsight GUI
+  redisinsight:
+    image: redislabs/redisinsight:latest
+    container_name: redis-insight
+    ports:
+      - "${REDISINSIGHT_PORT}:8001"
+    volumes:
+      - redisinsight_data:/db
+    depends_on:
+      - redis
+    profiles:
+      - tools
+
+  # Redis Exporter for Prometheus
+  redis-exporter:
+    image: oliver006/redis_exporter:latest
+    container_name: redis-exporter
+    environment:
+      REDIS_ADDR: redis://redis:6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    ports:
+      - "${REDIS_EXPORTER_PORT}:9121"
+    depends_on:
+      - redis
+    profiles:
+      - monitoring
+
+volumes:
+  redis_data:
+    driver: local
+  redisinsight_data:
+    driver: local
+
+networks:
+  default:
+    name: redis-network
+    driver: bridge

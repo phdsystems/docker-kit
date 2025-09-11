@@ -1,0 +1,148 @@
+# syntax=docker/dockerfile:1.4
+# -----------------------------------------------------------------------------
+# DockerKit - Docker Management Toolkit
+# Multi-Stage Parallel Build Dockerfile
+# -----------------------------------------------------------------------------
+# This Dockerfile implements parallel builds using BuildKit
+# Optimized for Docker management operations
+# -----------------------------------------------------------------------------
+
+# ==============================================================================
+# BUILD ARGUMENTS - Define all build arguments upfront
+# ==============================================================================
+ARG ALPINE_VERSION=3.19
+ARG DOCKER_VERSION=24
+
+# Feature flags for optional components
+ARG INSTALL_API=false
+ARG INSTALL_UI=false
+ARG INSTALL_MONITORING=false
+ARG INSTALL_BACKUP_TOOLS=false
+
+# ==============================================================================
+# STAGE: base-system - Core system packages (builds in parallel)
+# ==============================================================================
+FROM alpine:${ALPINE_VERSION} AS base-system
+
+# Install core system packages with cache mount
+RUN --mount=type=cache,target=/var/cache/apk \
+    apk add --no-cache \
+    # Core utilities
+    bash \
+    curl \
+    wget \
+    git \
+    sudo \
+    ca-certificates \
+    openssh-client \
+    # Text processing
+    jq \
+    yq \
+    grep \
+    sed \
+    awk \
+    # Archive tools
+    tar \
+    gzip \
+    zip \
+    unzip \
+    # Process management
+    procps \
+    htop \
+    # Network tools
+    net-tools \
+    netcat-openbsd \
+    # Development tools
+    make \
+    gcc \
+    musl-dev \
+    # Terminal tools
+    ncurses \
+    less \
+    vim \
+    tmux \
+    # Shell enhancements
+    bash-completion \
+    coreutils
+
+# ==============================================================================
+# STAGE: docker-tools - Docker CLI and utilities (builds in parallel)
+# ==============================================================================
+FROM docker:${DOCKER_VERSION}-cli AS docker-tools
+
+# Docker CLI is already included in this image
+# Add Docker Compose
+RUN --mount=type=cache,target=/var/cache/apk \
+    apk add --no-cache \
+    docker-compose \
+    docker-buildx
+
+
+# ==============================================================================
+# STAGE: final - Combine all components
+# ==============================================================================
+FROM alpine:${ALPINE_VERSION} AS final
+
+# Copy from parallel build stages
+COPY --from=base-system / /
+COPY --from=docker-tools /usr/local/bin/docker* /usr/local/bin/
+COPY --from=docker-tools /usr/local/libexec/docker /usr/local/libexec/docker
+
+# Create dck user with sudo privileges
+RUN addgroup -g 1000 dck && \
+    adduser -D -u 1000 -G dck -s /bin/bash dck && \
+    echo "dck ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+
+# Set up DockerKit directory
+WORKDIR /opt/dck
+
+# Copy DockerKit files
+COPY --chown=dockerkit:dck ./src/ /opt/dck/src/
+COPY --chown=dockerkit:dck ./lib/ /opt/dck/lib/
+COPY --chown=dockerkit:dck ./docs/ /opt/dck/docs/
+COPY --chown=dockerkit:dck ./tests/ /opt/dck/tests/
+COPY --chown=dockerkit:dck ./dck /opt/dck/
+
+# Make scripts executable
+RUN chmod +x dck && \
+    chmod +x src/*.sh && \
+    chmod +x tests/*.sh 2>/dev/null || true && \
+    chmod +x tests/mocks/* 2>/dev/null || true && \
+    ln -s /opt/dck/dck /usr/local/bin/dck
+
+# Create volume mount points
+RUN mkdir -p /var/lib/dck/data && \
+    mkdir -p /var/lib/dck/logs && \
+    mkdir -p /var/lib/dck/backups && \
+    chown -R dockerkit:dck /var/lib/dck
+
+# Add DockerKit to PATH
+ENV PATH="/opt/dck:${PATH}" \
+    DOCKERKIT_HOME="/opt/dck" \
+    DOCKERKIT_DATA="/var/lib/dck/data" \
+    DOCKERKIT_LOGS="/var/lib/dck/logs"
+
+# Switch to dck user
+USER dck
+
+# Set up shell environment
+RUN echo 'export PS1="\[\033[1;36m\]dockerkit\[\033[0m\]:\[\033[1;34m\]\w\[\033[0m\]$ "' >> ~/.bashrc && \
+    echo 'alias ll="ls -la"' >> ~/.bashrc && \
+    echo 'alias dk="dockerkit"' >> ~/.bashrc && \
+    echo 'alias dkhelp="dck --help"' >> ~/.bashrc
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD dck version || exit 1
+
+# Entry point
+ENTRYPOINT ["/bin/bash"]
+
+# Volumes for persistent data
+VOLUME ["/var/lib/dck/data", "/var/lib/dck/logs", "/var/run/docker.sock"]
+
+# Metadata
+LABEL maintainer="DockerKit Team" \
+      version="1.0.0" \
+      description="DockerKit - Comprehensive Docker Management Toolkit" \
+      org.opencontainers.image.source="https://github.com/yourusername/dck"

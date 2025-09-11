@@ -1,0 +1,36 @@
+# Git Settings for PHD-ADE
+# This file configures the branching strategy for the repository
+
+# Branching Strategy Selection
+# Options: enterprise-deployment | feature-release
+# Default: User can choose based on project needs
+GIT_STRATEGY=choice
+
+# To enforce a specific strategy project-wide, uncomment one:
+# GIT_STRATEGY=enterprise-deployment
+# GIT_STRATEGY=feature-release
+
+# Strategy-specific settings
+# For Enterprise Deployment Flow
+ENTERPRISE_ENVIRONMENTS="dev rc/* int uat prd main"
+ENTERPRISE_PROTECTED="int uat prd main"
+
+# For Feature Release Flow  
+FEATURE_BRANCHES="develop release/* hotfix/* main"
+FEATURE_PROTECTED="develop main"
+
+# Common settings
+ENFORCE_HOOKS=true
+ALLOW_FORCE_PUSH=false
+REQUIRE_PR_REVIEWS=true
+
+# Commit standards (applies to both strategies)
+ENFORCE_CONVENTIONAL_COMMITS=true
+PROHIBIT_AI_ATTRIBUTION=true
+
+# Branch naming patterns
+FEATURE_PATTERN="feature/*"
+BUGFIX_PATTERN="bugfix/*"
+HOTFIX_PATTERN="hotfix/*"
+RELEASE_PATTERN="release/*"
+RC_PATTERN="rc/*"

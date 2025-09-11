@@ -1,0 +1,95 @@
+# syntax=docker/dockerfile:1.4
+# -----------------------------------------------------------------------------
+# DCK - Docker Management Toolkit
+# Multi-Stage Optimized Build
+# -----------------------------------------------------------------------------
+
+# Stage 1: Get package versions for pinning
+FROM alpine:3.19.1 AS version-checker
+RUN apk update && \
+    apk list -I bash curl jq git docker-cli docker-cli-compose sudo | \
+    awk '{print $1}' > /tmp/packages.txt
+
+# Stage 2: Build and prepare scripts
+FROM alpine:3.19.1 AS builder
+
+# Install build dependencies
+RUN apk add --no-cache \
+    bash \
+    shellcheck \
+    git
+
+# Copy source files for validation
+COPY ./src/ /build/src/
+COPY ./dck /build/
+
+# Validate shell scripts with shellcheck (optional, but good practice)
+RUN find /build -name "*.sh" -type f -exec shellcheck -S warning {} \; || true
+
+# Make scripts executable and prepare
+RUN chmod +x /build/dck /build/src/*.sh
+
+# Stage 3: Final minimal runtime image
+FROM alpine:3.19.1 AS runtime
+
+# Metadata
+LABEL maintainer="DCK Team" \
+      version="1.0.0" \
+      description="DCK - Docker Management Toolkit" \
+      org.opencontainers.image.source="https://github.com/phdsystems/dck" \
+      org.opencontainers.image.vendor="PHD Systems" \
+      org.opencontainers.image.title="DCK"
+
+# Pin package versions for reproducibility
+# Versions for Alpine 3.19.1 (verified)
+RUN apk add --no-cache \
+    bash=5.2.21-r0 \
+    curl=8.12.1-r0 \
+    jq=1.7.1-r0 \
+    git=2.43.7-r0 \
+    docker-cli=25.0.5-r1 \
+    docker-cli-compose=2.23.3-r3 \
+    sudo=1.9.15_p2-r0 \
+    && rm -rf /var/cache/apk/*
+
+# Create non-root user
+RUN addgroup -g 1000 dck && \
+    adduser -D -u 1000 -G dck -s /bin/bash dck && \
+    echo "dck ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers.d/dck && \
+    chmod 0440 /etc/sudoers.d/dck
+
+# Create directory structure
+RUN mkdir -p /opt/dck/src /opt/dck/lib /opt/dck/docs \
+             /var/lib/dck/data /var/lib/dck/logs && \
+    chown -R dck:dck /opt/dck /var/lib/dck
+
+WORKDIR /opt/dck
+
+# Copy files from builder stage with proper ownership
+COPY --from=builder --chown=dck:dck /build/dck /opt/dck/
+COPY --from=builder --chown=dck:dck /build/src/ /opt/dck/src/
+COPY --chown=dck:dck ./lib/ /opt/dck/lib/
+COPY --chown=dck:dck ./docs/ /opt/dck/docs/
+
+# Create symlink
+RUN ln -s /opt/dck/dck /usr/local/bin/dck
+
+# Environment
+ENV PATH="/opt/dck:${PATH}" \
+    DCK_HOME="/opt/dck" \
+    DCK_DATA="/var/lib/dck/data" \
+    DCK_LOGS="/var/lib/dck/logs"
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD dck version || exit 1
+
+# Drop to non-root user
+USER dck
+
+# Volumes
+VOLUME ["/var/lib/dck/data", "/var/lib/dck/logs"]
+
+# Entry point
+ENTRYPOINT ["dck"]
+CMD ["--help"]

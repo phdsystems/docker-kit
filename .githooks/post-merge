@@ -1,0 +1,47 @@
+#!/bin/bash
+# Post-merge hook to track and validate pulls on protected branches
+
+PROTECTED_BRANCHES=("int" "uat" "prd" "main")
+CURRENT_BRANCH=$(git branch --show-current)
+
+# Colors
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+# Check if on protected branch
+for branch in "${PROTECTED_BRANCHES[@]}"; do
+    if [[ "$CURRENT_BRANCH" == "$branch" ]]; then
+        echo -e "${YELLOW}⚠️  Warning: Changes pulled to protected branch '$CURRENT_BRANCH'${NC}"
+        echo -e "${YELLOW}   This action has been logged for audit.${NC}"
+        
+        # Log the pull
+        echo "$(date '+%Y-%m-%d %H:%M:%S') | PULL_COMPLETED | $CURRENT_BRANCH | $(git log -1 --format=%H)" >> ~/.git-pull-audit.log
+        
+        # Check if changes came from correct source
+        case "$CURRENT_BRANCH" in
+            "int")
+                if ! git log -1 --format=%B | grep -q "dev"; then
+                    echo -e "${RED}⚠️  Warning: Changes may not be from 'dev' branch${NC}"
+                fi
+                ;;
+            "uat")
+                if ! git log -1 --format=%B | grep -q "int"; then
+                    echo -e "${RED}⚠️  Warning: Changes may not be from 'int' branch${NC}"
+                fi
+                ;;
+            "prd")
+                if ! git log -1 --format=%B | grep -q "uat"; then
+                    echo -e "${RED}⚠️  Warning: Changes may not be from 'uat' branch${NC}"
+                fi
+                ;;
+            "main")
+                if ! git log -1 --format=%B | grep -q "prd"; then
+                    echo -e "${RED}⚠️  Warning: Changes may not be from 'prd' branch${NC}"
+                fi
+                ;;
+        esac
+        
+        break
+    fi
+done

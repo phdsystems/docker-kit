@@ -1,0 +1,94 @@
+# syntax=docker/dockerfile:1.4
+# -----------------------------------------------------------------------------
+# DCK - Docker Management Toolkit
+# Distroless Production Build (Ultra-minimal)
+# -----------------------------------------------------------------------------
+# Note: Distroless images don't have a shell, so this is for specific use cases
+# where you only need to run the DCK binary without shell script support
+
+# Stage 1: Build a static binary (if possible) or prepare runtime
+FROM golang:1.21-alpine AS builder
+
+# Install dependencies for building a wrapper
+RUN apk add --no-cache gcc musl-dev
+
+# Create a simple Go wrapper that can execute our scripts
+WORKDIR /build
+RUN echo 'package main' > main.go && \
+    echo 'import "fmt"' >> main.go && \
+    echo 'import "os"' >> main.go && \
+    echo 'func main() {' >> main.go && \
+    echo '    if len(os.Args) < 2 {' >> main.go && \
+    echo '        fmt.Println("DCK - Docker Management Toolkit")' >> main.go && \
+    echo '        fmt.Println("Usage: dck <command> [options]")' >> main.go && \
+    echo '        os.Exit(0)' >> main.go && \
+    echo '    }' >> main.go && \
+    echo '    fmt.Printf("DCK Command: %s\\n", os.Args[1])' >> main.go && \
+    echo '    fmt.Println("Note: This distroless version requires a compiled binary")' >> main.go && \
+    echo '}' >> main.go
+
+# Build static binary
+RUN CGO_ENABLED=0 GOOS=linux go build -a -ldflags='-w -s' -o dck main.go
+
+# Stage 2: Prepare scripts and tools in Alpine
+FROM alpine:3.19.1 AS tools
+
+# Install required tools
+RUN apk add --no-cache \
+    bash=5.2.21-r0 \
+    curl=8.12.1-r0 \
+    jq=1.7.1-r0 \
+    docker-cli=25.0.5-r1 \
+    docker-cli-compose=2.23.3-r3
+
+# Copy scripts
+COPY ./src/ /opt/dck/src/
+COPY ./lib/ /opt/dck/lib/
+COPY ./dck /opt/dck/dck
+
+# Make executable
+RUN chmod +x /opt/dck/dck /opt/dck/src/*.sh
+
+# Stage 3: Final distroless image
+# Using distroless/static for smallest possible size
+FROM gcr.io/distroless/static:nonroot
+
+# Metadata
+LABEL maintainer="DCK Team" \
+      version="1.0.0-distroless" \
+      description="DCK - Distroless Docker Management Toolkit" \
+      org.opencontainers.image.source="https://github.com/phdsystems/dck"
+
+# Copy the static binary from builder
+COPY --from=builder /build/dck /usr/local/bin/dck
+
+# Note: Distroless images run as non-root by default (user 65532)
+# No shell, no package manager, just the binary
+
+# Entry point - direct binary execution
+ENTRYPOINT ["/usr/local/bin/dck"]
+CMD ["--help"]
+
+# -----------------------------------------------------------------------------
+# Alternative: Distroless with shell support (using distroless/base)
+# -----------------------------------------------------------------------------
+# If you need shell support, use this instead:
+
+# FROM gcr.io/distroless/base:nonroot
+# 
+# LABEL maintainer="DCK Team" \
+#       version="1.0.0-distroless" \
+#       description="DCK - Distroless Docker Management Toolkit"
+# 
+# # Copy binaries and scripts from Alpine stage
+# COPY --from=tools /bin/bash /bin/
+# COPY --from=tools /usr/bin/jq /usr/bin/
+# COPY --from=tools /usr/bin/curl /usr/bin/
+# COPY --from=tools /usr/bin/docker /usr/bin/
+# COPY --from=tools --chown=nonroot:nonroot /opt/dck/ /opt/dck/
+# 
+# WORKDIR /opt/dck
+# USER nonroot
+# 
+# ENTRYPOINT ["/bin/bash", "/opt/dck/dck"]
+# CMD ["--help"]

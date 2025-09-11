@@ -1,0 +1,84 @@
+version: '3.8'
+
+services:
+  # PostgreSQL for Keycloak
+  postgres:
+    image: postgres:16-alpine
+    container_name: keycloak-postgres
+    env_file: .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Keycloak
+  keycloak:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: keycloak
+    env_file: .env
+    environment:
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KC_DB: ${KC_DB}
+      KC_DB_URL_HOST: postgres
+      KC_DB_URL_PORT: ${KC_DB_URL_PORT}
+      KC_DB_URL_DATABASE: ${KC_DB_URL_DATABASE}
+      KC_DB_USERNAME: ${KC_DB_USERNAME}
+      KC_DB_PASSWORD: ${KC_DB_PASSWORD}
+      KC_HOSTNAME: ${KC_HOSTNAME}
+      KC_PROXY: ${KC_PROXY}
+    ports:
+      - "8080:8080"
+      - "8443:8443"
+      - "9000:9000"  # Management
+    volumes:
+      - ./themes:/opt/keycloak/themes:ro
+      - ./providers:/opt/keycloak/providers:ro
+      - ./realm-export.json:/opt/keycloak/data/import/realm.json:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: start --optimized --import-realm
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health/ready"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+
+  # Optional: Keycloak Config CLI for automated setup
+  keycloak-config:
+    image: adorsys/keycloak-config-cli:latest
+    container_name: keycloak-config
+    environment:
+      KEYCLOAK_URL: http://keycloak:8080
+      KEYCLOAK_USER: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      IMPORT_FILES_LOCATIONS: /config/*
+    volumes:
+      - ./realm-config:/config:ro
+    depends_on:
+      keycloak:
+        condition: service_healthy
+    profiles:
+      - setup
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  default:
+    name: keycloak-network
+    driver: bridge

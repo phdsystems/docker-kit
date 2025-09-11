@@ -1,0 +1,81 @@
+# Environment files
+.env
+.env.local
+.env.*.local
+*.env
+
+# Tool configuration directories
+.claude/
+.gemini/
+.config/
+.bash_history
+.claude.json
+
+# Docker volumes
+my_research_data/*
+!my_research_data/.gitkeep
+
+# Or exclude all potential data directories
+data/*
+research/*
+datasets/*
+
+# Logs
+*.log
+logs/
+cli-history.log
+
+# SSH keys and certificates
+*.pem
+*.key
+*.pub
+id_*
+known_hosts
+authorized_keys
+
+# Docker
+.docker/
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Node modules (if any)
+node_modules/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Research data (sensitive)
+my_research_data/*.csv
+my_research_data/*.json
+my_research_data/*.xlsx
+my_research_data/sensitive/
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Python artifacts
+.coverage
+*.egg-info/

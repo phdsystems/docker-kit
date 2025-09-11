@@ -1,0 +1,73 @@
+[alias]
+    # Protected pull - requires confirmation
+    pull-protected = "!f() { \
+        branch=$(git branch --show-current); \
+        protected='int uat prd main'; \
+        if echo \"$protected\" | grep -w \"$branch\" > /dev/null; then \
+            echo '⚠️  Attempting to pull on protected branch: '$branch; \
+            echo 'This action requires authorization.'; \
+            read -p 'Enter super-engineer password: ' -s pass; \
+            echo; \
+            hash=$(echo -n \"$pass\" | sha256sum | cut -d' ' -f1); \
+            if [ \"$hash\" = \"8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92\" ]; then \
+                echo '✅ Authorized. Pulling...'; \
+                git pull \"$@\"; \
+            else \
+                echo '❌ Unauthorized'; \
+                return 1; \
+            fi; \
+        else \
+            git pull \"$@\"; \
+        fi; \
+    }; f"
+    
+    # Safe checkout - warns for protected branches
+    co-safe = "!f() { \
+        target=\"$1\"; \
+        protected='int uat prd main'; \
+        if echo \"$protected\" | grep -w \"$target\" > /dev/null; then \
+            echo '⚠️  WARNING: Checking out protected branch: '$target; \
+            echo 'Protected branches should not be modified directly.'; \
+            read -p 'Continue? (y/n): ' confirm; \
+            if [ \"$confirm\" = \"y\" ]; then \
+                git checkout \"$@\"; \
+            else \
+                echo 'Checkout cancelled'; \
+            fi; \
+        else \
+            git checkout \"$@\"; \
+        fi; \
+    }; f"
+    
+    # Pull with hierarchy check
+    pull-hierarchy = "!f() { \
+        branch=$(git branch --show-current); \
+        case \"$branch\" in \
+            'int') source='dev' ;; \
+            'uat') source='int' ;; \
+            'prd') source='uat' ;; \
+            'main') source='prd' ;; \
+            *) git pull \"$@\"; return ;; \
+        esac; \
+        echo \"Branch $branch should only receive changes from $source\"; \
+        echo \"Fetching from $source instead...\"; \
+        git fetch origin \"$source\"; \
+        git merge \"origin/$source\"; \
+    }; f"
+
+[core]
+    # Hook path for protection
+    hooksPath = .githooks
+
+[branch "int"]
+    # Prevent direct pushes
+    pushRemote = no_push
+
+[branch "uat"]
+    pushRemote = no_push
+
+[branch "prd"]
+    pushRemote = no_push
+
+[branch "main"]
+    pushRemote = no_push

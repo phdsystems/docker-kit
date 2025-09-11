@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# Protect critical branches from deletion
+# This hook prevents pushing branch deletions for protected branches
+
+PROTECTED_BRANCHES=("main" "dev" "int" "staging" "rc" "prd")
+
+while read local_ref local_sha remote_ref remote_sha; do
+    # Check if this is a deletion (local_sha is all zeros)
+    if [[ "$local_sha" = "0000000000000000000000000000000000000000" ]]; then
+        # Extract branch name from remote_ref
+        branch_name="${remote_ref##refs/heads/}"
+        
+        # Check if this is a protected branch
+        for protected in "${PROTECTED_BRANCHES[@]}"; do
+            if [[ "$branch_name" = "$protected" ]]; then
+                echo "❌ ERROR: Attempting to delete protected branch '$branch_name'"
+                echo "Protected branches cannot be deleted: ${PROTECTED_BRANCHES[*]}"
+                echo ""
+                echo "If you really need to delete this branch:"
+                echo "1. Remove it from PROTECTED_BRANCHES in .githooks/pre-push-protect-branches"
+                echo "2. Or use: git push --no-verify origin :$branch_name (NOT RECOMMENDED)"
+                exit 1
+            fi
+        done
+    fi
+done
+
+exit 0

@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Mock sudo command that passes through to the actual command
+# This allows "sudo docker" to work with our mock docker
+
+# Check if first argument is "docker"
+if [[ "$1" == "docker" ]]; then
+    # Remove "docker" from arguments and call our mock docker
+    shift
+    "$(dirname "$0")/docker" "$@"
+else
+    # For other sudo commands, just execute them
+    # (This shouldn't happen in our tests, but handle it gracefully)
+    "$@"
+fi

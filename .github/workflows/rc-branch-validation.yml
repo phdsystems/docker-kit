@@ -1,0 +1,147 @@
+name: RC Branch Validation
+
+on:
+  pull_request:
+    branches:
+      - 'rc/*'
+  push:
+    branches:
+      - 'rc/*'
+  create:
+    branches:
+      - 'rc/*'
+
+jobs:
+  validate-rc-source:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' || github.event_name == 'create'
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      
+      - name: Validate RC Creation Source
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            TARGET_BRANCH="${{ github.base_ref }}"
+            SOURCE_BRANCH="${{ github.head_ref }}"
+          else
+            # For create events
+            TARGET_BRANCH="${GITHUB_REF#refs/heads/}"
+            # Check the parent commit to see where this was branched from
+            PARENT_BRANCH=$(git show-branch -a 2>/dev/null | grep '\*' | grep -v "$TARGET_BRANCH" | head -n1 | sed 's/.*\[\(.*\)\].*/\1/' | sed 's/[\^~].*//g')
+            SOURCE_BRANCH="$PARENT_BRANCH"
+          fi
+          
+          echo "RC Branch: $TARGET_BRANCH"
+          echo "Source: $SOURCE_BRANCH"
+          
+          # RC branches must come from dev
+          if [[ "$TARGET_BRANCH" == rc/* ]]; then
+            if [ "$SOURCE_BRANCH" != "dev" ] && ! [[ "$SOURCE_BRANCH" == origin/dev* ]]; then
+              echo "❌ RC branches must be created from 'dev' branch!"
+              echo "❌ Attempted to create from: $SOURCE_BRANCH"
+              echo ""
+              echo "Correct workflow:"
+              echo "  git checkout dev"
+              echo "  git pull origin dev"
+              echo "  git checkout -b rc/v2.x.x"
+              exit 1
+            fi
+            
+            echo "✅ Valid RC branch creation from dev"
+          fi
+
+  validate-rc-naming:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'create' || github.event_name == 'push'
+    
+    steps:
+      - name: Validate RC Branch Naming
+        run: |
+          BRANCH="${GITHUB_REF#refs/heads/}"
+          
+          if [[ "$BRANCH" == rc/* ]]; then
+            # Extract the part after rc/
+            RC_NAME="${BRANCH#rc/}"
+            
+            # Check if it matches valid patterns
+            if [[ "$RC_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[a-z0-9-]+)?$ ]] || \
+               [[ "$RC_NAME" =~ ^[0-9]{4}\.[0-9]{2}$ ]] || \
+               [[ "$RC_NAME" =~ ^sprint-[0-9]+$ ]] || \
+               [[ "$RC_NAME" =~ ^[a-z][a-z0-9-]+$ ]]; then
+              echo "✅ Valid RC branch name: $BRANCH"
+              echo "Detected pattern:"
+              if [[ "$RC_NAME" =~ ^v[0-9] ]]; then
+                echo "  → Version-based (e.g., v2.1.0)"
+              elif [[ "$RC_NAME" =~ ^[0-9]{4}\.[0-9]{2}$ ]]; then
+                echo "  → Date-based (e.g., 2024.01)"
+              elif [[ "$RC_NAME" =~ ^sprint- ]]; then
+                echo "  → Sprint-based (e.g., sprint-15)"
+              else
+                echo "  → Feature-bundle (e.g., auth-overhaul)"
+              fi
+            else
+              echo "❌ Invalid RC branch name: $BRANCH"
+              echo ""
+              echo "Valid naming patterns:"
+              echo "  • rc/v2.1.0 (version-based)"
+              echo "  • rc/2024.01 (date-based)"
+              echo "  • rc/sprint-15 (sprint-based)"
+              echo "  • rc/auth-overhaul (feature-bundle)"
+              exit 1
+            fi
+          fi
+
+  rc-lifecycle-check:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      
+      - name: Check RC Lifecycle Status
+        run: |
+          BRANCH="${GITHUB_REF#refs/heads/}"
+          
+          if [[ "$BRANCH" == rc/* ]]; then
+            echo "📊 RC Branch Lifecycle Check: $BRANCH"
+            
+            # Check age of RC branch
+            CREATION_DATE=$(git log --reverse --format=%ai $BRANCH | head -1 | cut -d' ' -f1)
+            CURRENT_DATE=$(date +%Y-%m-%d)
+            
+            # Calculate days old
+            DAYS_OLD=$(( ($(date -d "$CURRENT_DATE" +%s) - $(date -d "$CREATION_DATE" +%s)) / 86400 ))
+            
+            echo "Branch age: $DAYS_OLD days (created: $CREATION_DATE)"
+            
+            if [ $DAYS_OLD -gt 14 ]; then
+              echo "⚠️ Warning: RC branch is over 2 weeks old!"
+              echo "Consider:"
+              echo "  1. Promoting to int if ready"
+              echo "  2. Closing if no longer needed"
+              echo "  3. Refreshing from dev if still active"
+            elif [ $DAYS_OLD -gt 7 ]; then
+              echo "ℹ️ RC branch is over 1 week old"
+              echo "Ensure testing is progressing"
+            else
+              echo "✅ RC branch age is acceptable"
+            fi
+            
+            # Check commit activity
+            LAST_COMMIT=$(git log -1 --format=%ar $BRANCH)
+            echo "Last commit: $LAST_COMMIT"
+            
+            # Check divergence from dev
+            BEHIND_DEV=$(git rev-list --count $BRANCH..origin/dev)
+            if [ $BEHIND_DEV -gt 20 ]; then
+              echo "⚠️ Warning: RC is $BEHIND_DEV commits behind dev!"
+              echo "Consider rebasing or creating a fresh RC"
+            fi
+          fi
