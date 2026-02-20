@@ -234,7 +234,7 @@ if [[ "$RUN_ALL" == "true" ]] || [[ "$RUN_SEARCH" == "true" ]]; then
     # Create a combined search test if individual test doesn't exist
     SEARCH_TEST="$TEST_DIR/test_search_operations.sh"
     if [[ ! -f "$SEARCH_TEST" ]]; then
-        create_simple_test "$DOCKERKIT_DIR/scripts/docker-search-images.sh" "$SEARCH_TEST"
+        create_simple_test "$DOCKERKIT_DIR/main/src/docker-search-images.sh" "$SEARCH_TEST"
     fi
     run_test "$SEARCH_TEST" "search_operations" "Search Operations Tests"
 fi
@@ -250,7 +250,7 @@ if [[ "$RUN_ALL" == "true" ]] || [[ "$RUN_EXEC" == "true" ]]; then
     # Create exec test if it doesn't exist
     EXEC_TEST="$TEST_DIR/test_container_exec.sh"
     if [[ ! -f "$EXEC_TEST" ]]; then
-        create_simple_test "$DOCKERKIT_DIR/scripts/docker-container-exec.sh" "$EXEC_TEST"
+        create_simple_test "$DOCKERKIT_DIR/main/src/docker-container-exec.sh" "$EXEC_TEST"
     fi
     run_test "$EXEC_TEST" "container_exec" "Container Execution Tests"
 fi
@@ -271,7 +271,7 @@ if [[ "$RUN_ALL" == "true" ]] || [[ "$RUN_NETWORK" == "true" ]]; then
     # Create network test if it doesn't exist
     NETWORK_TEST="$TEST_DIR/test_network_operations.sh"
     if [[ ! -f "$NETWORK_TEST" ]]; then
-        create_simple_test "$DOCKERKIT_DIR/scripts/docker-network-operations.sh" "$NETWORK_TEST"
+        create_simple_test "$DOCKERKIT_DIR/main/src/docker-network-operations.sh" "$NETWORK_TEST"
     fi
     run_test "$NETWORK_TEST" "network_operations" "Network Operations Tests"
 fi
@@ -282,7 +282,7 @@ if [[ "$RUN_ALL" == "true" ]] || [[ "$RUN_COMPOSE" == "true" ]]; then
     # Create compose test if it doesn't exist
     COMPOSE_TEST="$TEST_DIR/test_compose_operations.sh"
     if [[ ! -f "$COMPOSE_TEST" ]]; then
-        create_simple_test "$DOCKERKIT_DIR/scripts/docker-compose-operations.sh" "$COMPOSE_TEST"
+        create_simple_test "$DOCKERKIT_DIR/main/src/docker-compose-operations.sh" "$COMPOSE_TEST"
     fi
     run_test "$COMPOSE_TEST" "compose_operations" "Docker Compose Tests"
 fi

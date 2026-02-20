@@ -69,7 +69,7 @@ install_files() {
     
     # Copy main binaries
     cp -r "$script_dir/bin/"* "$INSTALL_DIR/bin/" 2>/dev/null || true
-    cp -r "$script_dir/src/"* "$INSTALL_DIR/lib/" 2>/dev/null || true
+    cp -r "$script_dir/main/src/"* "$INSTALL_DIR/lib/" 2>/dev/null || true
     cp -r "$script_dir/templates/"* "$INSTALL_DIR/templates/" 2>/dev/null || true
     cp -r "$script_dir/docs/"* "$INSTALL_DIR/docs/" 2>/dev/null || true
     

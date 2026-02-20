@@ -8,8 +8,8 @@ set -uo pipefail
 # Test configuration
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
-DCK_CMD="${PROJECT_ROOT}/dck"
-COMPLIANCE_SCRIPT="${PROJECT_ROOT}/src/docker-compliance.sh"
+DCK_CMD="${PROJECT_ROOT}/bin/dck"
+COMPLIANCE_SCRIPT="${PROJECT_ROOT}/main/src/docker-compliance.sh"
 TEST_DIR="${SCRIPT_DIR}/test_files"
 TEMP_DIR=""
 
@@ -35,8 +35,8 @@ setup() {
     mkdir -p "$TEST_DIR"
     
     # Source the compliance script functions
-    source "${PROJECT_ROOT}/lib/common.sh" 2>/dev/null || true
-    source "${PROJECT_ROOT}/lib/docker-wrapper.sh" 2>/dev/null || true
+    source "${PROJECT_ROOT}/main/src/lib/common.sh" 2>/dev/null || true
+    source "${PROJECT_ROOT}/main/src/lib/docker-wrapper.sh" 2>/dev/null || true
 }
 
 teardown() {

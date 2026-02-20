@@ -158,13 +158,13 @@ test_cleanup_all_command() {
 test_system_df_analysis() {
     # Mock docker system df output
     export DOCKER_CMD="echo 'TYPE TOTAL ACTIVE SIZE RECLAIMABLE'"
-    "$PROJECT_ROOT/dck" system 2>&1 | grep -q "System\|system\|Docker" || true
+    "$PROJECT_ROOT/bin/dck" system 2>&1 | grep -q "System\|system\|Docker" || true
 }
 
 test_system_info_analysis() {
     # Mock docker info output
     export DOCKER_CMD="echo 'Containers: 5'"
-    "$PROJECT_ROOT/dck" system 2>&1 | grep -q "Container\|container\|System" || true
+    "$PROJECT_ROOT/bin/dck" system 2>&1 | grep -q "Container\|container\|System" || true
 }
 
 # ==============================================================================
@@ -173,12 +173,12 @@ test_system_info_analysis() {
 
 test_export_json_format() {
     export DOCKER_CMD="echo '[{\"name\":\"test\"}]'"
-    "$PROJECT_ROOT/dck" export containers --format json 2>&1 | grep -q "test\|{" || true
+    "$PROJECT_ROOT/bin/dck" export containers --format json 2>&1 | grep -q "test\|{" || true
 }
 
 test_export_csv_format() {
     export DOCKER_CMD="echo 'name,id'"
-    "$PROJECT_ROOT/dck" export images --format csv 2>&1 | grep -q "name\|," || true
+    "$PROJECT_ROOT/bin/dck" export images --format csv 2>&1 | grep -q "name\|," || true
 }
 
 # ==============================================================================

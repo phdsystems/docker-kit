@@ -108,18 +108,18 @@ check_dependencies() {
     done
     
     # Check for project structure
-    if [[ ! -f "$PROJECT_ROOT/dck" ]]; then
+    if [[ ! -f "$PROJECT_ROOT/bin/dck" ]]; then
         echo -e "${RED}  ✗ DCK CLI not found${NC}"
         deps_ok=false
     else
         echo -e "${GREEN}  ✓ DCK CLI found${NC}"
     fi
-    
-    if [[ ! -d "$PROJECT_ROOT/src" ]]; then
-        echo -e "${RED}  ✗ src/ directory not found${NC}"
+
+    if [[ ! -d "$PROJECT_ROOT/main/src" ]]; then
+        echo -e "${RED}  ✗ main/src/ directory not found${NC}"
         deps_ok=false
     else
-        echo -e "${GREEN}  ✓ src/ directory found${NC}"
+        echo -e "${GREEN}  ✓ main/src/ directory found${NC}"
     fi
     
     if ! $deps_ok; then

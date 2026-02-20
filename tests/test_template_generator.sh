@@ -8,7 +8,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
-TEMPLATE_SCRIPT="$PROJECT_ROOT/src/docker-template-generator.sh"
+TEMPLATE_SCRIPT="$PROJECT_ROOT/main/src/docker-template-generator.sh"
 TEMPLATE_DIR="$PROJECT_ROOT/template/complete"
 
 # Source test helpers

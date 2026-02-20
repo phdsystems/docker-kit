@@ -1,7 +1,7 @@
 #!/bin/bash
 # Simple validation test for docker-search-images.sh
 
-SCRIPT="/home/developer/phd-ade/src/scripts/docker-search-images.sh"
+SCRIPT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/main/src/docker-search-images.sh"
 
 if [[ ! -f "$SCRIPT" ]]; then
     echo "Script not found: $SCRIPT"

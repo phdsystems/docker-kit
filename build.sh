@@ -40,4 +40,4 @@ fi
 
 # Build DockerKit
 echo -e "${BLUE}Building DockerKit image...${NC}"
-exec ./build-targets/build-dockerkit.sh "$@"
+exec "$(dirname "${BASH_SOURCE[0]}")/scripts/ci/build.sh" "$@"

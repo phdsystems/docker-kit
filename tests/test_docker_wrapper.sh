@@ -8,7 +8,7 @@ set -uo pipefail
 # Test configuration
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
-WRAPPER_SCRIPT="${PROJECT_ROOT}/lib/docker-wrapper.sh"
+WRAPPER_SCRIPT="${PROJECT_ROOT}/main/src/lib/docker-wrapper.sh"
 
 # Colors for output
 RED='\033[0;31m'
