@@ -1,6 +1,18 @@
 # Docker vs DCK Feature Comparison
 
-## ✅ Implemented Features
+**Audience**: Users evaluating DockerKit, contributors
+
+## WHAT
+
+Feature-by-feature comparison between native Docker CLI commands and their DockerKit (`dck`) equivalents.
+
+## WHY
+
+Users need to understand which Docker operations DockerKit covers, and contributors need to identify gaps for future development.
+
+## HOW
+
+### Implemented Features
 
 ### Container Management
 - [x] List containers (`docker ps`) → `dck containers`
@@ -35,7 +47,7 @@
 - [x] Resource monitoring → `dck monitor`
 - [x] Security audit → `dck security`
 
-## ❌ Missing Docker Features
+### Missing Docker Features
 
 ### Container Operations
 - [ ] Create container (`docker create`)
@@ -114,7 +126,7 @@
 - [ ] Plugin management (`docker plugin`)
 - [ ] Extension management
 
-## 🎯 Priority Features to Add
+### Priority Features to Add
 
 Based on common usage patterns, these features should be prioritized:
 

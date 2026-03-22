@@ -1,10 +1,18 @@
 # Docker Landscape
 
-This document provides an overview of the Docker object model and ecosystem. It outlines the core objects, less commonly used but still first-class objects, supporting entities, and highlights which parts are open source versus proprietary.
+**Audience**: All users, developers new to Docker
 
----
+## WHAT
 
-## 🔹 Core Docker Objects
+Overview of the Docker object model and ecosystem — core objects, supporting entities, and open-source vs proprietary boundaries.
+
+## WHY
+
+Understanding Docker's object model and ecosystem context is essential before working with DockerKit's management and compliance features.
+
+## HOW
+
+### Core Docker Objects
 
 These are the primary building blocks most users interact with, all of which are **open source** (part of the Moby project under Apache 2.0):
 
@@ -22,7 +30,7 @@ These are the primary building blocks most users interact with, all of which are
 
 ---
 
-## 🔹 Less Commonly Used (But Still First-Class Objects)
+### Less Commonly Used (But Still First-Class Objects)
 
 These are part of the Docker API and CLI but used mainly in cluster setups or advanced scenarios. All of these are also **open source** as part of Docker Engine (Moby):
 
@@ -46,7 +54,7 @@ These are part of the Docker API and CLI but used mainly in cluster setups or ad
 
 ---
 
-## 🔹 Supporting "Objects" (Not Always Thought of as Such)
+### Supporting Objects
 
 These aren't always treated as core objects but are important in the Docker ecosystem. Most are **open source**, but some surrounding tools are proprietary:
 
@@ -67,7 +75,7 @@ These aren't always treated as core objects but are important in the Docker ecos
 
 ---
 
-## 🔗 Object Relationships
+### Object Relationships
 
 How Docker's objects relate in a non‑Swarm and Swarm setup.
 
@@ -154,7 +162,7 @@ Secrets/Configs → injected into Services/Containers
 
 ---
 
-## 🔒 Security Anti‑Patterns
+### Security Anti-Patterns
 
 ### Docker Socket Container Pattern
 
@@ -180,7 +188,7 @@ Secrets/Configs → injected into Services/Containers
 
 ---
 
-## ✅ Summary
+### Summary
 
 * **Open source objects**: Images, Containers, Volumes, Networks, Plugins, Secrets, Configs, Services, Stacks, Nodes, Builder cache, Contexts, Events.
 * **Proprietary tooling/services**: Docker Desktop, Docker Hub (hosted registry).

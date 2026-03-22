@@ -1,10 +1,20 @@
 # Docker Best Practices Validation Report
 
-## 🔍 Analysis Summary
+**Audience**: DevOps engineers, contributors
 
-We've analyzed the DCK Dockerfiles against industry best practices. Here are the findings and recommendations:
+## WHAT
 
-## ✅ Current Good Practices
+Validation report analysing DCK Dockerfiles against industry best practices with findings and recommendations.
+
+## WHY
+
+Continuous validation against best practices catches regressions early and documents the rationale behind each Docker configuration choice.
+
+## HOW
+
+The DCK Dockerfiles were analysed against industry best practices. Below are the findings and recommendations.
+
+### Current Good Practices
 
 1. **Non-root User**: ✅ All Dockerfiles use a non-root user (`dck`)
 2. **Specific Base Image**: ✅ Using Alpine Linux for minimal size
@@ -13,9 +23,9 @@ We've analyzed the DCK Dockerfiles against industry best practices. Here are the
 5. **Health Checks**: ✅ Implemented in some Dockerfiles
 6. **BuildKit Support**: ✅ Using BuildKit syntax for better caching
 
-## 🔧 Improvements Needed
+### Improvements Needed
 
-### 1. **Pin Package Versions** ⚠️
+### 1. **Pin Package Versions**
 **Issue**: Not pinning specific package versions can lead to non-reproducible builds
 ```dockerfile
 # Current
@@ -28,7 +38,7 @@ RUN apk add --no-cache \
     jq=1.7.1-r0
 ```
 
-### 2. **Pin Base Image Version** ⚠️
+### 2. **Pin Base Image Version**
 **Issue**: Using floating tags can cause unexpected changes
 ```dockerfile
 # Current
@@ -38,7 +48,7 @@ FROM alpine:3.19
 FROM alpine:3.19.1
 ```
 
-### 3. **Add Metadata Labels** 📋
+### 3. **Add Metadata Labels**
 **Issue**: Missing OCI standard labels for better image documentation
 ```dockerfile
 LABEL maintainer="DCK Team" \
@@ -47,7 +57,7 @@ LABEL maintainer="DCK Team" \
       org.opencontainers.image.source="https://github.com/phdsystems/dck"
 ```
 
-### 4. **Optimize Layer Caching** 🚀
+### 4. **Optimize Layer Caching**
 **Issue**: COPY order could be optimized
 ```dockerfile
 # Better order (least to most frequently changed)
@@ -57,19 +67,19 @@ COPY ./src/ /opt/dck/src/       # Often changes
 COPY ./dck /opt/dck/            # Most frequently changes
 ```
 
-### 5. **Security Hardening** 🔒
+### 5. **Security Hardening**
 - Remove sudo in production (use Docker groups instead)
 - Add security scanning with Docker Scout
 - Use --security-opt for runtime restrictions
 - Consider read-only root filesystem where possible
 
-### 6. **Multi-Stage Build Optimization** 📦
+### 6. **Multi-Stage Build Optimization**
 Current Dockerfiles could benefit from multi-stage builds to:
 - Separate build dependencies from runtime
 - Reduce final image size
 - Improve security by excluding build tools
 
-## 📊 Image Size Analysis
+### Image Size Analysis
 
 | Dockerfile | Current Approach | Potential Size |
 |------------|-----------------|----------------|
@@ -77,7 +87,7 @@ Current Dockerfiles could benefit from multi-stage builds to:
 | Dockerfile.dockerkit | Multi-stage (good!) | ~45MB |
 | Dockerfile.dockerkit-simple | Single stage | ~48MB |
 
-## 🛡️ Security Recommendations
+### Security Recommendations
 
 1. **Scan with Trivy/Snyk**:
    ```bash
@@ -99,21 +109,21 @@ Current Dockerfiles could benefit from multi-stage builds to:
               dck:latest
    ```
 
-## 🎯 Quick Wins
+### Quick Wins
 
 1. **Update .dockerignore**: Ensure build context is minimal
 2. **Add HEALTHCHECK**: To all production images
 3. **Use BuildKit**: `DOCKER_BUILDKIT=1` for all builds
 4. **Cache mount**: Use BuildKit cache mounts for package managers
 
-## 📝 Validation Tools Used
+### Validation Tools Used
 
 - **Hadolint**: Dockerfile linting
 - **Docker Scout**: Security scanning
 - **dive**: Image layer analysis
 - **docker scan**: Vulnerability detection
 
-## 🚀 Next Steps
+### Next Steps
 
 1. Apply the improved Dockerfile.best-practices
 2. Update .dockerignore with comprehensive exclusions
@@ -121,7 +131,7 @@ Current Dockerfiles could benefit from multi-stage builds to:
 4. Set up CI/CD with automated Docker best practices checks
 5. Consider using distroless or scratch base images for even smaller size
 
-## 📚 References
+### References
 
 - [Docker Best Practices](https://docs.docker.com/develop/dev-best-practices/)
 - [Dockerfile Best Practices](https://docs.docker.com/develop/develop-images/dockerfile_best-practices/)

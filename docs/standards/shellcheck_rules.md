@@ -1,11 +1,20 @@
 # ShellCheck Rules and Compliance
 
-## Overview
-ShellCheck is a static analysis tool for shell scripts that identifies bugs, security issues, and code quality problems. This document details all ShellCheck rules and our compliance status.
+**Audience**: Contributors, CI/CD maintainers
 
-## Rule Categories
+## WHAT
 
-### 🔴 Error Level (Must Fix)
+Complete ShellCheck rule reference with DockerKit's compliance status across all 224 rules and 4 severity levels.
+
+## WHY
+
+ShellCheck is the primary static analysis gate in CI. Understanding rules and their rationale prevents false suppressions and catches real bugs.
+
+## HOW
+
+### Rule Categories
+
+### Error Level (Must Fix)
 
 #### SC1000-1099: Parser Errors
 | Code | Description | Status | Example |
@@ -38,7 +47,7 @@ ShellCheck is a static analysis tool for shell scripts that identifies bugs, sec
 | SC2089 | Quotes prevent tilde expansion | ✅ | `path="$HOME/dir"` |
 | SC2090 | Quotes prevent tilde expansion | ✅ | Use `$HOME` |
 
-### 🟡 Warning Level (Should Fix)
+### Warning Level (Should Fix)
 
 #### SC2100-2199: Best Practices
 | Code | Description | Status | Implementation |
@@ -61,7 +70,7 @@ ShellCheck is a static analysis tool for shell scripts that identifies bugs, sec
 | SC2166 | Prefer `[[ ]]` over `[ ]` in bash | ✅ | Modern conditionals |
 | SC2181 | Check return directly with `if cmd` | ✅ | `if cmd; then` |
 
-### 🔵 Info Level (Consider Fixing)
+### Info Level (Consider Fixing)
 
 #### SC2200-2299: Style and Optimization
 | Code | Description | Status | Implementation |
@@ -78,7 +87,7 @@ ShellCheck is a static analysis tool for shell scripts that identifies bugs, sec
 | SC2034 | Variable appears unused | ⚠️ | Remove if unused |
 | SC2035 | Use `./*glob*` to avoid issues | ✅ | Prevent option confusion |
 
-### ⚪ Style Level (Optional)
+### Style Level (Optional)
 
 #### SC2300+: Code Style
 | Code | Description | Status | Implementation |

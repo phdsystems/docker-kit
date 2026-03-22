@@ -1,9 +1,18 @@
 # Docker Official Images Standards
 
-## Overview
-Docker Official Images are a curated set of Docker repositories hosted on Docker Hub. These images follow strict guidelines for security, maintainability, and best practices.
+**Audience**: DevOps engineers, image maintainers
 
-## Requirements Compliance
+## WHAT
+
+Docker Official Images quality and maintainability standards with DockerKit's compliance status across all 15 requirements.
+
+## WHY
+
+Aligning with Docker Official Images standards ensures DockerKit images meet the highest bar for security, documentation, and reproducibility.
+
+## HOW
+
+### Requirements Compliance
 
 ### 1. Clear Documentation ✅
 

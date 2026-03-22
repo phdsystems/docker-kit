@@ -19,17 +19,17 @@ Centralized documentation access prevents fragmentation and ensures all audience
 | Get started quickly | [Quick Start](quick_start.md) |
 | Understand the architecture | [Architecture](3-design/architecture.md) |
 | Contribute to the project | [Developer Guide](4-development/developer_guide.md) |
-| Check compliance standards | [Compliance](compliance.md) |
+| Check compliance standards | [Compliance](3-design/compliance_overview.md) |
 | Look up a term | [Glossary](glossary.md) |
 
 ### By SDLC Phase
 
 | Phase | Contents |
 |-------|----------|
-| [0-ideation](0-ideation/) | [Product Brief](product_brief.md), [Project Reference](project_reference.md) |
-| [3-design](3-design/) | [Architecture](3-design/architecture.md), [Safety Boundaries](safety_boundaries.md), [Standards](standards/README.md) |
+| [0-ideation](0-ideation/) | [Product Brief](0-ideation/product_brief.md), [Project Reference](0-ideation/project_reference.md) |
+| [3-design](3-design/) | [Architecture](3-design/architecture.md), [Compliance](3-design/compliance_overview.md), [Safety Boundaries](safety_boundaries.md), [Standards](standards/README.md) |
 | [4-development](4-development/) | [Developer Guide](4-development/developer_guide.md), [Tutorials](tutorial/) |
-| [5-testing](5-testing/) | [Coverage Analysis](coverage_analysis.md) |
+| [5-testing](5-testing/) | [Coverage Analysis](5-testing/coverage_analysis.md) |
 
 ### Reference Documentation
 
@@ -41,7 +41,7 @@ Centralized documentation access prevents fragmentation and ensures all audience
 | [Best Practices Validation](docker_best_practices_validation.md) | 9 Dockerfile best practice checks |
 | [Best Practices Scorecard](docker_best_practices_scorecard.md) | Scoring methodology |
 | [Templates](templates.md) | Production-ready Docker stack templates (8 categories) |
-| [Compliance](compliance.md) | CIS Docker Benchmark and OWASP compliance checking |
+| [Compliance](3-design/compliance_overview.md) | CIS Docker Benchmark and OWASP compliance checking |
 | [Safety Boundaries](safety_boundaries.md) | DockerKit safety guarantees |
 
 ### Standards

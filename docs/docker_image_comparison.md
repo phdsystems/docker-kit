@@ -1,6 +1,18 @@
 # Docker Image Size Comparison
 
-## Build Results
+**Audience**: DevOps engineers, contributors
+
+## WHAT
+
+Size and capability comparison across DockerKit image variants (original, multistage, minimal, distroless).
+
+## WHY
+
+Choosing the right image variant requires understanding the trade-offs between size, functionality, and security posture.
+
+## HOW
+
+### Build Results
 
 | Image Variant | Size | Reduction | Description |
 |--------------|------|-----------|-------------|

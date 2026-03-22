@@ -1,6 +1,18 @@
 # DCK Template System Guide
 
-## Overview
+**Audience**: Users generating Docker stacks, contributors
+
+## WHAT
+
+Guide to DockerKit's production-ready Docker stack template system covering 8 technology categories.
+
+## WHY
+
+Hand-crafting Docker configurations from scratch is slow and error-prone. Templates encode best practices into reusable, production-ready starting points.
+
+## HOW
+
+### Overview
 
 The DCK Template System provides complete, production-ready Docker stacks for various technologies. Each template is a self-contained package that includes everything needed for both development and production deployment.
 

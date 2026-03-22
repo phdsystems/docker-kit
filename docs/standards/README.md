@@ -1,25 +1,32 @@
 # Security & Compliance Standards
 
-## Overview
-This directory contains comprehensive documentation of security standards and compliance requirements for Docker containers and Shell/Bash scripts implemented in the DCK project.
+**Audience**: DevOps engineers, security teams, contributors, auditors
 
-## Standards Documentation
+## WHAT
+
+Comprehensive documentation of security standards and compliance requirements for Docker containers and Shell/Bash scripts implemented in the DCK project.
+
+## WHY
+
+Centralised standards documentation ensures every contributor understands and can validate the security posture of the project.
+
+## HOW
 
 ### Docker Standards
 
-### 🔒 [CIS Docker Benchmark](./cis_docker_benchmark.md)
+#### [CIS Docker Benchmark](./cis_docker_benchmark.md)
 - **Purpose**: Security hardening guidelines
 - **Controls**: 52 security controls
 - **Coverage**: 23 build-time, 28 runtime, 1 excluded
 - **Focus**: Container security configuration
 
-### 🛡️ [OWASP Container Security](./owasp_container_security.md)
+#### [OWASP Container Security](./owasp_container_security.md)
 - **Purpose**: Top 10 container security risks
 - **Risks Mitigated**: 8/10 fully, 2/10 runtime
 - **Focus**: Vulnerability prevention
 - **Scope**: Application security in containers
 
-### 📦 [Docker Official Images](./docker_official_images.md)
+#### [Docker Official Images](./docker_official_images.md)
 - **Purpose**: Quality and maintainability standards
 - **Requirements**: 15 standards
 - **Coverage**: 15/15 fully implemented
@@ -27,25 +34,25 @@ This directory contains comprehensive documentation of security standards and co
 
 ### Shell/Bash Standards
 
-### 🔐 [Bash Security Guidelines](./bash_security_guidelines.md)
+#### [Bash Security Guidelines](./bash_security_guidelines.md)
 - **Purpose**: Shell script security best practices
 - **Controls**: 10 security categories
 - **Coverage**: Command injection, path security, input validation
 - **Focus**: Secure shell scripting
 
-### ✅ [ShellCheck Rules](./shellcheck_rules.md)
+#### [ShellCheck Rules](./shellcheck_rules.md)
 - **Purpose**: Static analysis and code quality
 - **Rules**: 224 total rules across 4 severity levels
 - **Coverage**: Errors, warnings, info, style
 - **Focus**: Bug prevention and best practices
 
-### 🐚 [POSIX Shell Compliance](./posix_shell_compliance.md)
+#### [POSIX Shell Compliance](./posix_shell_compliance.md)
 - **Purpose**: Cross-platform shell compatibility
 - **Standards**: POSIX.1-2017 compliance
 - **Coverage**: Portable shell features and syntax
 - **Focus**: Universal Unix compatibility
 
-### 📝 [Bash Style Guide](./bash_style_guide.md)
+#### [Bash Style Guide](./bash_style_guide.md)
 - **Purpose**: Coding standards and conventions
 - **Based on**: Google Shell Style Guide
 - **Coverage**: Naming, formatting, error handling
@@ -70,7 +77,7 @@ This directory contains comprehensive documentation of security standards and co
 
 ## Implementation Summary
 
-### ✅ Fully Implemented (46 Controls)
+### Fully Implemented (46 Controls)
 - Non-root user enforcement
 - Health check monitoring
 - Version pinning (base + packages)
@@ -81,7 +88,7 @@ This directory contains comprehensive documentation of security standards and co
 - Multi-variant images
 - Comprehensive documentation
 
-### ⚠️ Runtime Configuration (30 Controls)
+### Runtime Configuration (30 Controls)
 - Resource limits (memory, CPU, PIDs)
 - Security options (AppArmor, SELinux)
 - Network segmentation
@@ -89,7 +96,7 @@ This directory contains comprehensive documentation of security standards and co
 - Capability restrictions
 - TLS/encryption
 
-### 📊 Metrics
+### Metrics
 - **Total Standards**: 3 major frameworks
 - **Total Controls**: 77 security controls
 - **Build-time Controls**: 46 (100% implemented)

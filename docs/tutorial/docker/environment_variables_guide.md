@@ -1,6 +1,18 @@
 # Docker Environment Variables and .env Files Guide
 
-## Table of Contents
+**Audience**: DevOps engineers, developers configuring containers
+
+## WHAT
+
+Best practices for managing environment variables in Docker containers with 12-factor app compliance.
+
+## WHY
+
+Incorrect environment variable handling causes configuration drift, security leaks, and hard-to-debug deployments.
+
+## HOW
+
+### Table of Contents
 - [Overview](#overview)
 - [12-Factor App Compliance](#12-factor-app-compliance)
 - [Environment Variable Patterns](#environment-variable-patterns)
@@ -28,14 +40,14 @@ The [12-Factor App](https://12factor.net/) methodology defines best practices fo
 - Same Docker image must work across all environments
 - Configuration injected at runtime, not build time
 
-### ❌ Anti-Pattern: Build-Time Configuration
+### Anti-Pattern: Build-Time Configuration
 ```dockerfile
 # WRONG: Baking environment config into image
 ARG DATABASE_URL
 ENV DATABASE_URL=${DATABASE_URL}
 ```
 
-### ✅ Correct Pattern: Runtime Configuration
+### Correct Pattern: Runtime Configuration
 ```dockerfile
 # CORRECT: Configuration provided at runtime
 ENV NODE_ENV=production  # Safe default

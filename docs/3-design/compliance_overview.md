@@ -1,6 +1,18 @@
 # Docker Compliance Module Documentation
 
-## Table of Contents
+**Audience**: DevOps engineers, security teams, contributors
+
+## WHAT
+
+Compliance checking module providing CIS Docker Benchmark, OWASP Container Security validation, Dockerfile linting, and auto-remediation for Docker environments.
+
+## WHY
+
+Manual compliance auditing is error-prone and inconsistent. Automated checking ensures every build meets security baselines without human oversight.
+
+## HOW
+
+The compliance module supports the following features and workflows.
 
 - [Overview](#overview)
 - [Quick Start](#quick-start)
@@ -48,7 +60,7 @@ All DCK templates are pre-validated to achieve 95%+ compliance scores. When gene
 - Proper secret management patterns
 - Health checks and monitoring built-in
 
-### 🆕 Auto-Remediation Features
+### Auto-Remediation Features
 
 The compliance module can now automatically fix detected issues in your Dockerfiles:
 - Fix missing non-root users
@@ -534,14 +546,14 @@ To add new compliance checks:
 
 ## Related Documentation
 
-- [CIS Docker Benchmark](standards/cis_docker_benchmark.md)
-- [OWASP Container Security](standards/owasp_container_security.md)
-- [Docker Official Images](standards/docker_official_images.md)
-- [Bash Security Guidelines](standards/bash_security_guidelines.md)
+- [CIS Docker Benchmark](../standards/cis_docker_benchmark.md)
+- [OWASP Container Security](../standards/owasp_container_security.md)
+- [Docker Official Images](../standards/docker_official_images.md)
+- [Bash Security Guidelines](../standards/bash_security_guidelines.md)
 
 ## Support
 
 For issues or questions:
 - Open an issue on [GitHub](https://github.com/yourusername/dck/issues)
-- Check existing [compliance rules documentation](../docs/standards/)
+- Check existing [compliance rules documentation](../standards/)
 - Run `dck compliance --help` for command-specific help

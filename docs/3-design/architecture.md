@@ -88,7 +88,7 @@ User → bin/dck → parse command → check_docker() → dispatch to module
 ## Related Documentation
 
 - [Safety Boundaries](../safety_boundaries.md) — Safety guarantees and scope
-- [Compliance](../compliance.md) — CIS/OWASP compliance checking
+- [Compliance](compliance_overview.md) — CIS/OWASP compliance checking
 - [Standards](../standards/README.md) — Security and coding standards
 - [Compliance Checklist](compliance/compliance_checklist.md) — Architecture compliance audit
 - [Developer Guide](../4-development/developer_guide.md) — Development workflow

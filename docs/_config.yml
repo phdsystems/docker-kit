@@ -1,0 +1,13 @@
+title: DockerKit
+description: Comprehensive Docker management toolkit with safety guarantees
+remote_theme: pages-themes/cayman@v0.2.0
+plugins:
+  - jekyll-remote-theme
+
+# Build from docs/ directory
+baseurl: "/docker-kit"
+
+# Exclude non-doc files
+exclude:
+  - reference/CLAUDE.md
+  - templates.md

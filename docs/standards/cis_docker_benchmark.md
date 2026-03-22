@@ -1,9 +1,18 @@
 # CIS Docker Benchmark Compliance
 
-## Overview
-The Center for Internet Security (CIS) Docker Benchmark provides consensus-based security configuration guidelines for Docker containers. Version 1.6.0 contains over 100 security recommendations.
+**Audience**: Security teams, DevOps engineers, auditors
 
-## Implementation Status
+## WHAT
+
+Implementation status of the CIS Docker Benchmark v1.6.0 security configuration guidelines across DockerKit.
+
+## WHY
+
+CIS benchmarks are the industry standard for Docker security posture. Tracking implementation status ensures audit readiness.
+
+## HOW
+
+### Implementation Status
 
 ### 1. Host Configuration ⚠️
 *These are runtime/host-level configurations outside Dockerfile scope*
@@ -91,17 +100,17 @@ The Center for Internet Security (CIS) Docker Benchmark provides consensus-based
 
 ## Compliance Summary
 
-### ✅ Fully Implemented (Build-time)
+### Fully Implemented (Build-time)
 - **23 controls** implemented in Dockerfiles
 - Non-root user, health checks, minimal packages
 - No secrets, trusted base images, vulnerability scanning
 
-### ⚠️ Runtime Configuration Required
+### Runtime Configuration Required
 - **28 controls** require runtime flags
 - Security options, resource limits, network restrictions
 - Must be configured when running containers
 
-### ❌ Not Applicable/Excluded
+### Not Applicable/Excluded
 - **1 control** (sudo) intentionally excluded for security
 
 ## Usage Examples

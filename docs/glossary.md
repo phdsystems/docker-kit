@@ -2,9 +2,15 @@
 
 **Audience**: All users and contributors
 
-Alphabetized list of terms used in DockerKit.
+## WHAT
 
----
+Alphabetized list of domain terms used across DockerKit documentation and source code.
+
+## WHY
+
+A shared vocabulary eliminates ambiguity and ensures consistent terminology across docs, code, and conversations.
+
+## HOW
 
 **ADR** - Architecture Decision Record. A document capturing a significant architectural decision, its context, and consequences.
 

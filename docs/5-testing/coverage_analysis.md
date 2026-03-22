@@ -1,8 +1,18 @@
 # DCK Coverage Analysis
 
-## Overall Coverage Statistics
+**Audience**: Contributors, QA engineers
 
-### 📊 Coverage Summary
+## WHAT
+
+Test and feature coverage analysis for the DockerKit CLI toolkit.
+
+## WHY
+
+Coverage metrics identify gaps in testing and functionality, guiding development priorities and ensuring quality.
+
+## HOW
+
+### Coverage Summary
 - **Docker CLI Commands Covered**: ~70% of common operations
 - **CRUD Operations**: ✅ 100% (Create, Read, Update, Delete)
 - **Search & Discovery**: ✅ 100% (Advanced search for all object types)
@@ -11,7 +21,7 @@
 
 ## Detailed Feature Coverage
 
-### ✅ Container Management (90% Coverage)
+### Container Management (90% Coverage)
 
 #### Implemented
 - ✅ List containers (`ps`)
@@ -41,7 +51,7 @@
 
 **Container Coverage: 19/23 commands = 83%**
 
-### ✅ Image Management (85% Coverage)
+### Image Management (85% Coverage)
 
 #### Implemented
 - ✅ List images
@@ -65,7 +75,7 @@
 
 **Image Coverage: 13/16 commands = 81%**
 
-### ✅ Volume Management (95% Coverage)
+### Volume Management (95% Coverage)
 
 #### Implemented
 - ✅ List volumes
@@ -84,7 +94,7 @@
 
 **Volume Coverage: 10/11 features = 91%**
 
-### ✅ Network Management (90% Coverage)
+### Network Management (90% Coverage)
 
 #### Implemented
 - ✅ List networks
@@ -103,7 +113,7 @@
 
 **Network Coverage: 10/11 features = 91%**
 
-### ✅ Docker Compose (85% Coverage)
+### Docker Compose (85% Coverage)
 
 #### Implemented
 - ✅ Up (start services)
@@ -128,7 +138,7 @@
 
 **Compose Coverage: 14/17 commands = 82%**
 
-### ✅ System & Maintenance (100% Coverage)
+### System & Maintenance (100% Coverage)
 
 #### Implemented
 - ✅ System info
@@ -141,7 +151,7 @@
 
 **System Coverage: 7/7 features = 100%**
 
-### ✅ Search & Analysis (100% Coverage - DCK Exclusive)
+### Search & Analysis (100% Coverage - DCK Exclusive)
 
 #### Implemented
 - ✅ Advanced image search (by name, tag, size, registry)
@@ -154,7 +164,7 @@
 
 **Search Coverage: 7/7 features = 100%**
 
-### ❌ Not Covered Areas (0% Coverage)
+### Not Covered Areas (0% Coverage)
 
 #### Swarm Mode
 - ❌ Swarm init/join

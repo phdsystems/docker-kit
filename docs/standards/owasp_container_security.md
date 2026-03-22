@@ -1,9 +1,18 @@
 # OWASP Container Security Top 10
 
-## Overview
-The Open Web Application Security Project (OWASP) identifies the top 10 security risks for containerized applications. This guide documents how DCK addresses each risk.
+**Audience**: Security teams, DevOps engineers, auditors
 
-## Top 10 Container Security Risks
+## WHAT
+
+Mapping of OWASP Container Security Top 10 risks to DockerKit's mitigations and implementation status.
+
+## WHY
+
+OWASP provides the definitive risk taxonomy for container security. Documenting mitigations demonstrates compliance and identifies residual risk.
+
+## HOW
+
+### Top 10 Container Security Risks
 
 ### 1. D01: Insecure Container Images ✅
 **Risk**: Using vulnerable, outdated, or malicious base images

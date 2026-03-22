@@ -1,8 +1,20 @@
 # DCK Safety Boundaries
 
-## What the Safety Guarantees Cover
+**Audience**: All users, contributors, auditors
 
-### ✅ Protected Operations (DCK Infrastructure Only)
+## WHAT
+
+Definition of DockerKit's safety guarantees — which operations are protected, and what the blast radius of each command is.
+
+## WHY
+
+Users must trust that DockerKit will never destroy resources outside its own namespace. Documenting boundaries makes the guarantee auditable.
+
+## HOW
+
+### What the Safety Guarantees Cover
+
+### Protected Operations (DCK Infrastructure Only)
 
 These operations will ONLY affect DCK's own resources (prefixed with `dck`):
 
@@ -32,7 +44,7 @@ These operations will ONLY affect DCK's own resources (prefixed with `dck`):
 
 ## What the Safety Guarantees DO NOT Cover
 
-### 🔧 Full Docker Management (User Operations)
+### Full Docker Management (User Operations)
 
 When you USE DCK as a Docker management tool, you have FULL control:
 

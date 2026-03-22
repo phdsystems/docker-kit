@@ -1,6 +1,18 @@
 # Quick Start Guide
 
-## Prerequisites
+**Audience**: New users
+
+## WHAT
+
+Step-by-step guide to install and run DockerKit for the first time.
+
+## WHY
+
+A fast onboarding path reduces friction for new users and ensures correct initial setup.
+
+## HOW
+
+### Prerequisites
 
 - Docker >= 20.10
 - Bash >= 4.0
@@ -135,6 +147,6 @@ dck docs docker_landscape
 ## Next Steps
 
 - [Safety Boundaries](safety_boundaries.md) — Understand DockerKit's safety guarantees
-- [Compliance](compliance.md) — CIS Docker Benchmark and OWASP checks
+- [Compliance](3-design/compliance_overview.md) — CIS Docker Benchmark and OWASP checks
 - [Templates](templates.md) — Production-ready stack templates
 - [Best Practices](docker_best_practices_validation.md) — Dockerfile validation rules

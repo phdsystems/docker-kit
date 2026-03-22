@@ -1,6 +1,18 @@
 # Bash Style Guide and Best Practices
 
-## Table of Contents
+**Audience**: Contributors writing or reviewing Bash code
+
+## WHAT
+
+Coding standards and conventions for all Bash scripts in DockerKit, based on the Google Shell Style Guide.
+
+## WHY
+
+Consistent style across contributors reduces code review friction and prevents common Bash pitfalls.
+
+## HOW
+
+### Table of Contents
 
 - [Overview](#overview)
 - [File Organization](#file-organization)

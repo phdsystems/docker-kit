@@ -1,6 +1,18 @@
 # Docker Secrets Management Guide
 
-## Table of Contents
+**Audience**: DevOps engineers, developers handling sensitive data
+
+## WHAT
+
+Guide to managing secrets in Docker across BuildKit, Swarm, Compose, and Kubernetes.
+
+## WHY
+
+Environment variables leak secrets in logs and process tables. Proper secrets management keeps credentials out of images and runtime inspection.
+
+## HOW
+
+### Table of Contents
 - [Overview](#overview)
 - [Why Use Secrets Instead of Environment Variables](#why-use-secrets-instead-of-environment-variables)
 - [Docker BuildKit Secrets (Build-time)](#docker-buildkit-secrets-build-time)

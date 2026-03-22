@@ -1,6 +1,18 @@
 # Bash/Shell Security Guidelines
 
-## Table of Contents
+**Audience**: Contributors, security reviewers
+
+## WHAT
+
+Security guidelines covering command injection prevention, path protection, input validation, and privilege management for Bash scripts.
+
+## WHY
+
+Shell scripts are a common attack vector. Explicit security guidelines prevent vulnerabilities from reaching production.
+
+## HOW
+
+### Table of Contents
 
 - [Overview](#overview)
 - [Security Standards Compliance](#security-standards-compliance)
@@ -280,7 +292,7 @@ args=("$@")
 
 ## POSIX Compliance
 
-### Portable Shell Features ✅
+### Portable Shell Features
 
 ```bash
 #!/bin/sh  # POSIX shell, not bash

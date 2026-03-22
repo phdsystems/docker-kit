@@ -1,6 +1,18 @@
 # POSIX Shell Compliance Standards
 
-## Table of Contents
+**Audience**: Contributors, portability reviewers
+
+## WHAT
+
+POSIX.1-2017 compliance reference for shell scripting, documenting which Bash features are POSIX-compliant and which are Bash-only.
+
+## WHY
+
+Understanding POSIX boundaries helps contributors make intentional decisions about portability vs Bash-specific convenience.
+
+## HOW
+
+### Table of Contents
 
 - [Overview](#overview)
 - [Why POSIX Compliance Matters](#why-posix-compliance-matters)
@@ -30,7 +42,7 @@ POSIX (Portable Operating System Interface) defines standards for shell scriptin
 
 ## POSIX vs Bash Features
 
-### ✅ POSIX Compliant Features
+### POSIX Compliant Features
 
 #### Basic Syntax
 ```sh
@@ -122,7 +134,7 @@ ${var##pattern}    # Remove longest prefix
 ! [ expr ]              # NOT
 ```
 
-### ❌ Bash-Only Features (Not POSIX)
+### Bash-Only Features (Not POSIX)
 
 #### Arrays
 ```bash

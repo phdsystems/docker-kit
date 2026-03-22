@@ -1,8 +1,20 @@
 # Docker Best Practices Scorecard
 
-## 📊 Total Score: 25/25 Best Practices Implemented ✅
+**Audience**: DevOps engineers, contributors, auditors
 
-### 🏗️ Image Building (6/6)
+## WHAT
+
+Scorecard tracking implementation of 25 Docker best practices across image building, security, runtime, maintenance, and documentation.
+
+## WHY
+
+A quantified scorecard provides an at-a-glance compliance posture and identifies any regression in best-practice adherence.
+
+## HOW
+
+### Total Score: 25/25 Best Practices Implemented
+
+#### Image Building (6/6)
 1. ✅ **BuildKit syntax enabled** - `# syntax=docker/dockerfile:1.4`
 2. ✅ **Multi-stage builds** - Dockerfile.multistage for build optimization
 3. ✅ **Layer caching optimization** - Commands ordered by change frequency
@@ -10,7 +22,7 @@
 5. ✅ **Build context optimization** - .dockerignore configured
 6. ✅ **Parallel builds support** - BuildKit features utilized
 
-### 🔒 Security (7/7)
+#### Security (7/7)
 7. ✅ **Non-root user** - All images run as user `dck` (UID 1000)
 8. ✅ **No sudo in production** - Removed from minimal/distroless variants
 9. ✅ **Secrets not exposed** - No hardcoded credentials or keys
@@ -19,25 +31,25 @@
 12. ✅ **Read-only filesystem capable** - Scratch-based image supports it
 13. ✅ **No unnecessary packages** - Each variant optimized for its use case
 
-### 📦 Package Management (4/4)
+#### Package Management (4/4)
 14. ✅ **Pinned base image versions** - `alpine:3.19.1` not `alpine:latest`
 15. ✅ **Pinned package versions** - All apk packages version-locked
 16. ✅ **Cache cleanup** - `rm -rf /var/cache/apk/*` after installs
 17. ✅ **No package manager in production** - Distroless has none
 
-### 📝 Documentation & Metadata (4/4)
+#### Documentation & Metadata (4/4)
 18. ✅ **OCI standard labels** - Complete metadata in all Dockerfiles
 19. ✅ **HEALTHCHECK directive** - Implemented for container monitoring
 20. ✅ **Clear ENTRYPOINT/CMD** - Properly separated concerns
 21. ✅ **Version documentation** - Image comparison report created
 
-### 🚀 CI/CD & Automation (4/4)
+#### CI/CD & Automation (4/4)
 22. ✅ **Automated linting** - GitHub Actions with Hadolint
 23. ✅ **Vulnerability scanning** - Trivy and Docker Scout integration
 24. ✅ **Image size monitoring** - Automated size checks in CI
 25. ✅ **Best practices validation** - Automated checks for USER, HEALTHCHECK
 
-## 📈 Implementation Details by Dockerfile
+### Implementation Details by Dockerfile
 
 | Dockerfile | Practices Implemented | Size | Use Case |
 |------------|----------------------|------|----------|
@@ -46,7 +58,7 @@
 | Dockerfile.minimal | 24/25 | 30.4MB | Production |
 | Dockerfile.distroless | 25/25 | 3.26MB | High-security production |
 
-## 🎯 Advanced Practices Implemented
+### Advanced Practices Implemented
 
 ### Beyond Basic Requirements:
 - **Shellcheck validation** in build stage
@@ -60,7 +72,7 @@
 - **Build argument support** via ARG (where needed)
 - **Proper COPY ordering** for optimal caching
 
-## 🏆 Compliance Standards Met
+### Compliance Standards Met
 
 - ✅ **CIS Docker Benchmark** compliance
 - ✅ **OWASP Container Security** guidelines
@@ -68,7 +80,7 @@
 - ✅ **Docker Official Images** standards
 - ✅ **SLSA Build Level 2** requirements (with CI/CD)
 
-## 📊 Metrics
+### Metrics
 
 - **Total Dockerfiles**: 4 variants
 - **Smallest image**: 3.26MB (97% reduction)
