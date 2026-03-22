@@ -8,7 +8,7 @@ Guide to managing secrets in Docker across BuildKit, Swarm, Compose, and Kuberne
 
 ## WHY
 
-Environment variables leak secrets in logs and process tables. Proper secrets management keeps credentials out of images and runtime inspection.
+Environment variables leak secrets in logs and process tables. Proper secrets management keeps credentials out of images, logs, and runtime inspection.
 
 ## HOW
 
