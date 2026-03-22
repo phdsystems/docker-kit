@@ -11,6 +11,8 @@ nav_enabled: true
 back_to_top: true
 back_to_top_text: "Back to top"
 footer_content: "DockerKit &mdash; Docker management toolkit"
+mermaid:
+  version: "11"
 
 # Exclude non-doc files
 exclude:

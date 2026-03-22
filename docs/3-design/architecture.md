@@ -21,28 +21,27 @@ Docker environments need consistent security auditing, compliance checking, and 
 
 ### System Overview
 
-```
-┌──────────────────────────────────────────────────────────┐
-│                      bin/dck                              │
-│              (CLI Router & Dispatcher)                    │
-├──────────┬──────────┬──────────┬─────────────────────────┤
-│ Object   │ Search   │ Analysis │ Operations              │
-│ Inspect  │ & Filter │ & Audit  │ & Monitoring            │
-├──────────┼──────────┼──────────┼─────────────────────────┤
-│ images   │ search-  │ advanced-│ cleanup                 │
-│ contain. │ images   │ images   │ monitor                 │
-│ volumes  │ search-  │ advanced-│ template-generator      │
-│ networks │ contain. │ contain. │ compose-operations      │
-│          │ search-  │ security │ container-lifecycle     │
-│          │ volumes  │ complian.│ container-exec          │
-│          │ search-  │ remediat.│ image-operations        │
-│          │ networks │          │ volume-operations       │
-│          │          │          │ network-operations      │
-├──────────┴──────────┴──────────┴─────────────────────────┤
-│                   main/src/lib/                           │
-│         common.sh          docker-wrapper.sh              │
-│    (logging, formatting)   (sudo, Docker cmd abstraction) │
-└──────────────────────────────────────────────────────────┘
+```mermaid
+block-beta
+  columns 4
+  block:router:4
+    dck["bin/dck — CLI Router & Dispatcher"]
+  end
+  block:inspect:1
+    A["Object Inspect\nimages\ncontainers\nvolumes\nnetworks"]
+  end
+  block:search:1
+    B["Search & Filter\nsearch-images\nsearch-containers\nsearch-volumes\nsearch-networks"]
+  end
+  block:analysis:1
+    C["Analysis & Audit\nadvanced-images\nadvanced-containers\nsecurity\ncompliance\nremediation"]
+  end
+  block:ops:1
+    D["Operations\ncleanup\nmonitor\ntemplate-generator\ncompose-operations\ncontainer-lifecycle\ncontainer-exec\nimage-operations\nvolume-operations\nnetwork-operations"]
+  end
+  block:lib:4
+    E["main/src/lib/ — common.sh (logging, formatting) · docker-wrapper.sh (sudo, Docker cmd abstraction)"]
+  end
 ```
 
 ### Module Categories
@@ -69,16 +68,16 @@ Docker environments need consistent security auditing, compliance checking, and 
 
 ### Data Flow
 
-```
-User → bin/dck → parse command → check_docker() → dispatch to module
-                                                          │
-                                     ┌────────────────────┤
-                                     ▼                    ▼
-                              docker-wrapper.sh    main/src/docker-*.sh
-                              (sudo detection)     (module logic)
-                                     │                    │
-                                     ▼                    ▼
-                              Docker CLI/API        Formatted output
+```mermaid
+flowchart LR
+  User --> dck["bin/dck"]
+  dck --> parse["Parse command"]
+  parse --> check["check_docker()"]
+  check --> dispatch["Dispatch to module"]
+  dispatch --> wrapper["docker-wrapper.sh\n(sudo detection)"]
+  dispatch --> module["main/src/docker-*.sh\n(module logic)"]
+  wrapper --> docker["Docker CLI/API"]
+  module --> output["Formatted output"]
 ```
 
 ### Technology Stack

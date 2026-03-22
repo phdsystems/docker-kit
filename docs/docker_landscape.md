@@ -100,16 +100,11 @@ How Docker's objects relate in a non‑Swarm and Swarm setup.
 * **Plugins → (Networks / Volumes)**
   Plugins extend drivers for networking, storage, logging.
 
-#### ASCII sketch
-
-```
-        Image (immutable)
-             │
-             ▼
-        Container (runtime)
-        ┌───────────┴───────────┐
-        ▼                       ▼
-    Volume (data)          Network (connectivity)
+```mermaid
+flowchart TD
+  Image["Image (immutable)"] --> Container["Container (runtime)"]
+  Container --> Volume["Volume (data)"]
+  Container --> Network["Network (connectivity)"]
 ```
 
 ### Swarm relationships (if enabled)
@@ -123,16 +118,14 @@ How Docker's objects relate in a non‑Swarm and Swarm setup.
 * **Secrets / Configs → consumed by Service(s)/Container(s)**
   Injected at runtime (files/env) without baking into images.
 
-#### ASCII sketch (Swarm)
-
-```
-Stack
- └─ Service (desired state)
-     └─ Tasks / Containers  ←→  Networks
-                      │
-                      └→ Volumes
-Nodes (cluster machines) host the tasks
-Secrets/Configs → injected into Services/Containers
+```mermaid
+flowchart TD
+  Stack --> Service["Service (desired state)"]
+  Service --> Tasks["Tasks / Containers"]
+  Tasks <--> Networks
+  Tasks --> Volumes
+  Nodes["Nodes (cluster)"] -.->|host| Tasks
+  Secrets["Secrets / Configs"] -.->|injected into| Service
 ```
 
 ### Cardinality quick‑ref
