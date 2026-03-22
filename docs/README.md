@@ -26,7 +26,6 @@ Centralized documentation access prevents fragmentation and ensures all audience
 
 | Phase | Contents |
 |-------|----------|
-| [0-ideation](0-ideation/) | [Product Brief](0-ideation/product_brief.md), [Project Reference](0-ideation/project_reference.md) |
 | [3-design](3-design/) | [Architecture](3-design/architecture.md), [Compliance](3-design/compliance_overview.md), [Safety Boundaries](safety_boundaries.md), [Standards](standards/README.md) |
 | [4-development](4-development/) | [Developer Guide](4-development/developer_guide.md), [Tutorials](tutorial/) |
 | [5-testing](5-testing/) | [Coverage Analysis](5-testing/coverage_analysis.md) |
