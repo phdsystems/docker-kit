@@ -12,6 +12,8 @@ Environment variables leak secrets in logs and process tables. Proper secrets ma
 
 ## HOW
 
+> **Note:** The `version` key is optional in modern Docker Compose and is omitted from examples below.
+
 ### Table of Contents
 - [Overview](#overview)
 - [Why Use Secrets Instead of Environment Variables](#why-use-secrets-instead-of-environment-variables)
@@ -139,7 +141,6 @@ openssl rand -base64 32 | docker secret create api_key -
 
 ```yaml
 # docker-compose.yml (Swarm mode)
-version: '3.8'
 
 services:
   database:
@@ -218,7 +219,6 @@ function getConfig(name) {
 
 ```yaml
 # docker-compose.yml
-version: '3.8'
 
 services:
   app:
@@ -281,7 +281,6 @@ Docker Compose (non-Swarm) supports secrets for local development.
 
 ```yaml
 # docker-compose.yml
-version: '3.8'
 
 services:
   database:
@@ -321,7 +320,6 @@ project/
 
 ```yaml
 # docker-compose.yml
-version: '3.8'
 
 services:
   app:
@@ -484,7 +482,6 @@ package main
 
 import (
     "fmt"
-    "io/ioutil"
     "os"
     "strings"
 )
@@ -492,7 +489,7 @@ import (
 func GetSecret(name string) (string, error) {
     // Check for file path
     if filePath := os.Getenv(name + "_FILE"); filePath != "" {
-        data, err := ioutil.ReadFile(filePath)
+        data, err := os.ReadFile(filePath)
         if err != nil {
             return "", fmt.Errorf("reading secret %s: %w", name, err)
         }
@@ -565,7 +562,7 @@ services:
 # Automated rotation script
 #!/bin/bash
 NEW_PASSWORD=$(openssl rand -base64 32)
-echo $NEW_PASSWORD | docker secret create db_password_$(date +%s) -
+echo "${NEW_PASSWORD}" | docker secret create "db_password_$(date +%s)" -
 docker service update --secret-rm db_password --secret-add db_password_new app
 ```
 
@@ -688,7 +685,6 @@ CMD ["node", "server.js"]
 
 **docker-compose.yml:**
 ```yaml
-version: '3.8'
 
 services:
   postgres:
