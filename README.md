@@ -35,16 +35,12 @@ dck clean --safe
 ```bash
 git clone https://github.com/phdsystems/docker-kit.git
 cd docker-kit
-./install.sh
+./dockerkit-package/install.sh
 ```
 
 ## Documentation
 
-- 📖 [Quick Start Guide](docs/QUICK-START.md)
-- 🏗️ [Best Practices](docs/docker-best-practices-validation.md)
-- 📊 [Feature Comparison](docs/docker-feature-comparison.md)
-- 🔒 [Safety Boundaries](docs/safety-boundaries.md)
-- 📋 [Compliance Standards](docs/standards/)
+See [docs/README.md](docs/README.md) for complete documentation.
 
 ## Safety Guarantee
 
@@ -53,6 +49,10 @@ DockerKit's build, test, and installation scripts **NEVER** delete or modify Doc
 - Limited to DockerKit-managed resources
 - Fully reversible
 
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and guidelines.
+
 ## License
 
-MIT
+MIT - see [LICENSE](LICENSE) for details.

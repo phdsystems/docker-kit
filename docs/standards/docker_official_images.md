@@ -18,12 +18,12 @@ Docker Official Images are a curated set of Docker repositories hosted on Docker
 **Documentation Structure**:
 ```
 docs/
-├── docker-best-practices-validation.md
-├── docker-image-comparison.md
-├── rules/
-│   ├── cis-docker-benchmark.md
-│   ├── owasp-container-security.md
-│   └── docker-official-images.md
+├── docker_best_practices_validation.md
+├── docker_image_comparison.md
+├── standards/
+│   ├── cis_docker_benchmark.md
+│   ├── owasp_container_security.md
+│   └── docker_official_images.md
 └── README.md
 ```
 

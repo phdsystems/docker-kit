@@ -170,10 +170,10 @@ handle_system() {
     
     # Docker version
     echo -e "${BOLD}Docker Version:${NC}"
-    docker version
-    
+    docker_run version
+
     echo -e "\n${BOLD}System Information:${NC}"
-    docker system info --format '
+    docker_run system info --format '
 Containers:     {{.Containers}} ({{.ContainersRunning}} running, {{.ContainersPaused}} paused, {{.ContainersStopped}} stopped)
 Images:         {{.Images}}
 Server Version: {{.ServerVersion}}
@@ -185,12 +185,12 @@ Architecture:   {{.Architecture}}
 CPUs:           {{.NCPU}}
 Memory:         {{.MemTotal}}
 Docker Root:    {{.DockerRootDir}}'
-    
+
     echo -e "\n${BOLD}Disk Usage:${NC}"
-    docker system df
-    
+    docker_run system df
+
     echo -e "\n${BOLD}Resource Usage by Type:${NC}"
-    docker system df -v
+    docker_run system df -v
 }
 
 handle_security() {
@@ -220,7 +220,7 @@ handle_cleanup() {
         read -p "Are you sure? (yes/no): " confirm
         if [[ "$confirm" == "yes" ]]; then
             echo -e "${CYAN}Running system prune...${NC}"
-            docker system prune -a --volumes -f
+            docker_run system prune -a --volumes -f
             echo -e "\n${GREEN}Cleanup complete!${NC}"
         fi
     fi
@@ -229,7 +229,7 @@ handle_cleanup() {
 handle_stats() {
     echo -e "${BOLD}${CYAN}Docker Real-time Statistics${NC}"
     echo -e "${DIM}Press Ctrl+C to exit${NC}\n"
-    docker stats
+    docker_run stats
 }
 
 handle_export() {
@@ -309,9 +309,9 @@ handle_docs() {
     case "$doc" in
         landscape|"")
             if command -v less &>/dev/null; then
-                less "$DOCS_DIR/docker-landscape.md"
+                less "$DOCS_DIR/docker_landscape.md"
             else
-                cat "$DOCS_DIR/docker-landscape.md"
+                cat "$DOCS_DIR/docker_landscape.md"
             fi
             ;;
         *)

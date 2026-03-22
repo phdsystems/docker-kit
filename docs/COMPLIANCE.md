@@ -534,10 +534,10 @@ To add new compliance checks:
 
 ## Related Documentation
 
-- [CIS Docker Benchmark](../docs/standards/CIS-DOCKER-BENCHMARK.MD)
-- [OWASP Container Security](../docs/standards/OWASP-CONTAINER-SECURITY.MD)
-- [Docker Official Images](../docs/standards/DOCKER-OFFICIAL-IMAGES.MD)
-- [Bash Security Guidelines](../docs/standards/BASH-SECURITY-GUIDELINES.MD)
+- [CIS Docker Benchmark](standards/cis_docker_benchmark.md)
+- [OWASP Container Security](standards/owasp_container_security.md)
+- [Docker Official Images](standards/docker_official_images.md)
+- [Bash Security Guidelines](standards/bash_security_guidelines.md)
 
 ## Support
 

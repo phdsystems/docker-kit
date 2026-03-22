@@ -292,14 +292,16 @@ dck plugin add ./checks/custom-check.sh
 
 ## 📚 Documentation
 
-- [User Guide](docs/user-guide.md)
-- [API Reference](docs/api-reference.md)
-- [Contributing Guide](CONTRIBUTING.md)
-- [Security Policy](SECURITY.md)
+- [Quick Start Guide](../docs/quick_start.md)
+- [Compliance Standards](../docs/compliance.md)
+- [Safety Boundaries](../docs/safety_boundaries.md)
+- [Template Reference](../docs/templates.md)
+- [Contributing Guide](../CONTRIBUTING.md)
+- [Security Policy](../SECURITY.md)
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+We welcome contributions! Please see our [Contributing Guide](../CONTRIBUTING.md) for details.
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/amazing-feature`)

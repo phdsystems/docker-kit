@@ -595,7 +595,7 @@ main() {
         exit 1
     fi
     
-    if ! docker info &>/dev/null; then
+    if ! docker_run info &>/dev/null; then
         echo -e "${RED}Error: Docker daemon is not running${NC}"
         exit 1
     fi

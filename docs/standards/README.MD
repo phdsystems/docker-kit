@@ -7,19 +7,19 @@ This directory contains comprehensive documentation of security standards and co
 
 ### Docker Standards
 
-### 🔒 [CIS Docker Benchmark](./CIS-DOCKER-BENCHMARK.MD)
+### 🔒 [CIS Docker Benchmark](./cis_docker_benchmark.md)
 - **Purpose**: Security hardening guidelines
 - **Controls**: 52 security controls
 - **Coverage**: 23 build-time, 28 runtime, 1 excluded
 - **Focus**: Container security configuration
 
-### 🛡️ [OWASP Container Security](./OWASP-CONTAINER-SECURITY.MD)
+### 🛡️ [OWASP Container Security](./owasp_container_security.md)
 - **Purpose**: Top 10 container security risks
 - **Risks Mitigated**: 8/10 fully, 2/10 runtime
 - **Focus**: Vulnerability prevention
 - **Scope**: Application security in containers
 
-### 📦 [Docker Official Images](./DOCKER-OFFICIAL-IMAGES.MD)
+### 📦 [Docker Official Images](./docker_official_images.md)
 - **Purpose**: Quality and maintainability standards
 - **Requirements**: 15 standards
 - **Coverage**: 15/15 fully implemented
@@ -27,25 +27,25 @@ This directory contains comprehensive documentation of security standards and co
 
 ### Shell/Bash Standards
 
-### 🔐 [Bash Security Guidelines](./BASH-SECURITY-GUIDELINES.MD)
+### 🔐 [Bash Security Guidelines](./bash_security_guidelines.md)
 - **Purpose**: Shell script security best practices
 - **Controls**: 10 security categories
 - **Coverage**: Command injection, path security, input validation
 - **Focus**: Secure shell scripting
 
-### ✅ [ShellCheck Rules](./SHELLCHECK-RULES.MD)
+### ✅ [ShellCheck Rules](./shellcheck_rules.md)
 - **Purpose**: Static analysis and code quality
 - **Rules**: 224 total rules across 4 severity levels
 - **Coverage**: Errors, warnings, info, style
 - **Focus**: Bug prevention and best practices
 
-### 🐚 [POSIX Shell Compliance](./POSIX-SHELL-COMPLIANCE.MD)
+### 🐚 [POSIX Shell Compliance](./posix_shell_compliance.md)
 - **Purpose**: Cross-platform shell compatibility
 - **Standards**: POSIX.1-2017 compliance
 - **Coverage**: Portable shell features and syntax
 - **Focus**: Universal Unix compatibility
 
-### 📝 [Bash Style Guide](./BASH-STYLE-GUIDE.MD)
+### 📝 [Bash Style Guide](./bash_style_guide.md)
 - **Purpose**: Coding standards and conventions
 - **Based on**: Google Shell Style Guide
 - **Coverage**: Naming, formatting, error handling
@@ -56,17 +56,17 @@ This directory contains comprehensive documentation of security standards and co
 ### Docker Standards
 | Standard | Compliance | Build-time | Runtime | Documentation |
 |----------|------------|------------|---------|---------------|
-| CIS Docker Benchmark | 85% | ✅ 23/24 | ⚠️ 28/28 | [View](./CIS-DOCKER-BENCHMARK.MD) |
-| OWASP Container Top 10 | 80% | ✅ 8/10 | ⚠️ 2/10 | [View](./OWASP-CONTAINER-SECURITY.MD) |
-| Docker Official Images | 100% | ✅ 15/15 | N/A | [View](./DOCKER-OFFICIAL-IMAGES.MD) |
+| CIS Docker Benchmark | 85% | ✅ 23/24 | ⚠️ 28/28 | [View](./cis_docker_benchmark.md) |
+| OWASP Container Top 10 | 80% | ✅ 8/10 | ⚠️ 2/10 | [View](./owasp_container_security.md) |
+| Docker Official Images | 100% | ✅ 15/15 | N/A | [View](./docker_official_images.md) |
 
 ### Shell/Bash Standards
 | Standard | Compliance | Critical | Warnings | Documentation |
 |----------|------------|----------|----------|---------------|
-| Bash Security | 100% | ✅ 10/10 | N/A | [View](./BASH-SECURITY-GUIDELINES.MD) |
-| ShellCheck Rules | 95% | ✅ 45/45 | ⚠️ 85/89 | [View](./SHELLCHECK-RULES.MD) |
-| POSIX Compliance | 70% | ⚠️ Bash-specific | ⚠️ Arrays used | [View](./POSIX-SHELL-COMPLIANCE.MD) |
-| Style Guide | 90% | ✅ Consistent | ⚠️ Line length | [View](./BASH-STYLE-GUIDE.MD) |
+| Bash Security | 100% | ✅ 10/10 | N/A | [View](./bash_security_guidelines.md) |
+| ShellCheck Rules | 95% | ✅ 45/45 | ⚠️ 85/89 | [View](./shellcheck_rules.md) |
+| POSIX Compliance | 70% | ⚠️ Bash-specific | ⚠️ Arrays used | [View](./posix_shell_compliance.md) |
+| Style Guide | 90% | ✅ Consistent | ⚠️ Line length | [View](./bash_style_guide.md) |
 
 ## Implementation Summary
 

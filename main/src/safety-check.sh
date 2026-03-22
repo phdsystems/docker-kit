@@ -27,7 +27,7 @@ if ! command -v docker &>/dev/null; then
     exit 1
 fi
 
-if ! docker info &>/dev/null 2>&1; then
+if ! docker_run info &>/dev/null 2>&1; then
     if ! sudo docker info &>/dev/null 2>&1; then
         echo -e "${RED}Error: Docker daemon is not running${NC}"
         exit 1
