@@ -40,7 +40,7 @@ cd docker-kit
 
 ## Documentation
 
-See [docs/README.md](docs/README.md) for complete documentation.
+See [docs/index.md](docs/index.md) for complete documentation.
 
 ## Safety Guarantee
 

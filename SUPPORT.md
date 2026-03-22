@@ -5,7 +5,7 @@
 ### Documentation
 
 - [Quick Start Guide](docs/quick_start.md)
-- [Full Documentation](docs/README.md)
+- [Full Documentation](docs/index.md)
 - Built-in help: `dck help` or `dck <command> --help`
 
 ### Reporting Issues
@@ -19,7 +19,7 @@
 
 ## Before Opening an Issue
 
-1. Check the [documentation](docs/README.md) for answers
+1. Check the [documentation](docs/index.md) for answers
 2. Search [existing issues](https://github.com/phdsystems/docker-kit/issues) for duplicates
 3. Include your DockerKit version (`dck version`) and Docker version (`docker --version`)
 
