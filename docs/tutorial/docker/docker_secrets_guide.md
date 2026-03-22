@@ -1,3 +1,10 @@
+---
+layout: default
+title: Docker Secrets Guide
+parent: Tutorials
+nav_order: 1
+---
+
 # Docker Secrets Management Guide
 
 **Audience**: DevOps engineers, developers handling sensitive data

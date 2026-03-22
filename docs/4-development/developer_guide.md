@@ -1,3 +1,10 @@
+---
+layout: default
+title: Developer Guide
+parent: Development
+nav_order: 1
+---
+
 # DockerKit Developer Guide
 
 **Audience**: Contributors, developers modifying DockerKit

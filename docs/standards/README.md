@@ -1,3 +1,10 @@
+---
+layout: default
+title: Standards
+nav_order: 7
+has_children: true
+---
+
 # Security & Compliance Standards
 
 **Audience**: DevOps engineers, security teams, contributors, auditors

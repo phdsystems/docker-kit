@@ -1,3 +1,10 @@
+---
+layout: default
+title: CIS Docker Benchmark
+parent: Standards
+nav_order: 3
+---
+
 # CIS Docker Benchmark Compliance
 
 **Audience**: Security teams, DevOps engineers, auditors

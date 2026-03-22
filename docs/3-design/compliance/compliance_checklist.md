@@ -1,3 +1,10 @@
+---
+layout: default
+title: Compliance Checklist
+parent: Design
+nav_order: 4
+---
+
 # Architecture Compliance Checklist
 
 **Audience**: Architects, contributors, reviewers

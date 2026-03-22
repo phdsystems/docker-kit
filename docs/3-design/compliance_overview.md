@@ -1,3 +1,10 @@
+---
+layout: default
+title: Compliance Overview
+parent: Design
+nav_order: 2
+---
+
 # Docker Compliance Module Documentation
 
 **Audience**: DevOps engineers, security teams, contributors

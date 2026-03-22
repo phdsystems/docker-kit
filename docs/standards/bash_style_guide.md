@@ -1,3 +1,10 @@
+---
+layout: default
+title: Bash Style Guide
+parent: Standards
+nav_order: 2
+---
+
 # Bash Style Guide and Best Practices
 
 **Audience**: Contributors writing or reviewing Bash code

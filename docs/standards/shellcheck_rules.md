@@ -1,3 +1,10 @@
+---
+layout: default
+title: ShellCheck Rules
+parent: Standards
+nav_order: 7
+---
+
 # ShellCheck Rules and Compliance
 
 **Audience**: Contributors, CI/CD maintainers

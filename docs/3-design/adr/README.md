@@ -1,3 +1,10 @@
+---
+layout: default
+title: Architecture Decision Records
+parent: Design
+nav_order: 3
+---
+
 # Architecture Decision Records
 
 **Audience**: Architects, technical leadership, contributors

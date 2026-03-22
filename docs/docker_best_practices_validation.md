@@ -1,3 +1,10 @@
+---
+layout: default
+title: Best Practices Validation
+parent: Reference
+nav_order: 4
+---
+
 # Docker Best Practices Validation Report
 
 **Audience**: DevOps engineers, contributors

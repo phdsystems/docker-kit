@@ -1,3 +1,10 @@
+---
+layout: default
+title: Templates
+parent: Reference
+nav_order: 6
+---
+
 # DCK Template System Guide
 
 **Audience**: Users generating Docker stacks, contributors

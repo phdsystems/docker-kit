@@ -1,3 +1,9 @@
+---
+layout: home
+title: Home
+nav_order: 1
+---
+
 # DockerKit Documentation
 
 **Audience**: All users, developers, and contributors

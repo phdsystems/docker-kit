@@ -1,3 +1,10 @@
+---
+layout: default
+title: Environment Variables Guide
+parent: Tutorials
+nav_order: 2
+---
+
 # Docker Environment Variables and .env Files Guide
 
 **Audience**: DevOps engineers, developers configuring containers

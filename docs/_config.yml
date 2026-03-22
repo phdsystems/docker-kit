@@ -1,13 +1,17 @@
 title: DockerKit
 description: Comprehensive Docker management toolkit with safety guarantees
-remote_theme: pages-themes/cayman@v0.2.0
+remote_theme: just-the-docs/just-the-docs@v0.10.0
+baseurl: /docker-kit
+url: https://phdsystems.github.io
 plugins:
   - jekyll-remote-theme
-
-# Build from docs/ directory
-baseurl: "/docker-kit"
+color_scheme: dark
+search_enabled: true
+nav_enabled: true
+back_to_top: true
+back_to_top_text: "Back to top"
+footer_content: "DockerKit &mdash; Docker management toolkit"
 
 # Exclude non-doc files
 exclude:
   - reference/CLAUDE.md
-  - templates.md

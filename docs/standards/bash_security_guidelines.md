@@ -1,3 +1,10 @@
+---
+layout: default
+title: Bash Security Guidelines
+parent: Standards
+nav_order: 1
+---
+
 # Bash/Shell Security Guidelines
 
 **Audience**: Contributors, security reviewers

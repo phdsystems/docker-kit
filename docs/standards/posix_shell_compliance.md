@@ -1,3 +1,10 @@
+---
+layout: default
+title: POSIX Shell Compliance
+parent: Standards
+nav_order: 6
+---
+
 # POSIX Shell Compliance Standards
 
 **Audience**: Contributors, portability reviewers

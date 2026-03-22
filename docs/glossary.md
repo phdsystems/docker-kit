@@ -1,3 +1,10 @@
+---
+layout: default
+title: Glossary
+parent: Reference
+nav_order: 8
+---
+
 # Glossary
 
 **Audience**: All users and contributors

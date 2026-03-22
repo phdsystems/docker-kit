@@ -1,3 +1,10 @@
+---
+layout: default
+title: Safety Boundaries
+parent: Reference
+nav_order: 7
+---
+
 # DCK Safety Boundaries
 
 **Audience**: All users, contributors, auditors

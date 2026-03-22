@@ -1,3 +1,10 @@
+---
+layout: default
+title: Coverage Analysis
+parent: Testing
+nav_order: 1
+---
+
 # DCK Coverage Analysis
 
 **Audience**: Contributors, QA engineers

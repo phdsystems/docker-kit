@@ -1,3 +1,10 @@
+---
+layout: default
+title: Best Practices Scorecard
+parent: Reference
+nav_order: 5
+---
+
 # Docker Best Practices Scorecard
 
 **Audience**: DevOps engineers, contributors, auditors

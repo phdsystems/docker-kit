@@ -1,3 +1,10 @@
+---
+layout: default
+title: Image Comparison
+parent: Reference
+nav_order: 3
+---
+
 # Docker Image Size Comparison
 
 **Audience**: DevOps engineers, contributors

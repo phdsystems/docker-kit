@@ -1,3 +1,10 @@
+---
+layout: default
+title: Architecture
+parent: Design
+nav_order: 1
+---
+
 # DockerKit Architecture
 
 **Audience**: Architects, technical leadership, contributors

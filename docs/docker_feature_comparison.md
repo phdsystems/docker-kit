@@ -1,3 +1,10 @@
+---
+layout: default
+title: Feature Comparison
+parent: Reference
+nav_order: 2
+---
+
 # Docker vs DCK Feature Comparison
 
 **Audience**: Users evaluating DockerKit, contributors
