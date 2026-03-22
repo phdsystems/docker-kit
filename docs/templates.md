@@ -312,7 +312,6 @@ For environment-specific settings:
 
 ```yaml
 # docker-compose.override.yml (development)
-version: '3.8'
 services:
   app:
     volumes:
@@ -456,7 +455,7 @@ kubectl scale deployment myapp --replicas=3
 1. Check template-specific README in the generated directory
 2. Run compliance check: `dck compliance dockerfile Dockerfile`
 3. View DCK documentation: `dck docs`
-4. Check GitHub issues: https://github.com/yourusername/dck/issues
+4. Check GitHub issues: https://github.com/phdsystems/docker-kit/issues
 
 ## Contributing
 

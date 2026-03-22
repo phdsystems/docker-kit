@@ -145,4 +145,4 @@ VOLUME ["/var/lib/dck/data", "/var/lib/dck/logs", "/var/run/docker.sock"]
 LABEL maintainer="DockerKit Team" \
       version="1.0.0" \
       description="DockerKit - Comprehensive Docker Management Toolkit" \
-      org.opencontainers.image.source="https://github.com/yourusername/dck"
+      org.opencontainers.image.source="https://github.com/phdsystems/docker-kit"

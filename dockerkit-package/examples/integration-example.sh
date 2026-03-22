@@ -30,8 +30,6 @@ EOF
 # Method 3: In Docker Compose
 # ----------------------------
 cat > docker-compose.yml << 'EOF'
-version: '3.8'
-
 services:
   dockerkit:
     image: phdsystems/dockerkit:latest

@@ -323,7 +323,7 @@ jobs:
       
       - name: Install DCK
         run: |
-          git clone https://github.com/yourusername/dck.git
+          git clone https://github.com/phdsystems/docker-kit.git
           cd dck && chmod +x dck
           export PATH="$PATH:$(pwd)"
       
@@ -346,7 +346,7 @@ jobs:
 docker-compliance:
   stage: test
   script:
-    - git clone https://github.com/yourusername/dck.git
+    - git clone https://github.com/phdsystems/docker-kit.git
     - cd dck && chmod +x dck
     - export PATH="$PATH:$(pwd)"
     - |
@@ -375,7 +375,7 @@ pipeline {
                     def threshold = env.BRANCH_NAME == 'main' ? 90 : 70
                     
                     sh """
-                        git clone https://github.com/yourusername/dck.git
+                        git clone https://github.com/phdsystems/docker-kit.git
                         cd dck && chmod +x dck
                         export PATH="\$PATH:\$(pwd)"
                         
@@ -554,6 +554,6 @@ To add new compliance checks:
 ## Support
 
 For issues or questions:
-- Open an issue on [GitHub](https://github.com/yourusername/dck/issues)
+- Open an issue on [GitHub](https://github.com/phdsystems/docker-kit/issues)
 - Check existing [compliance rules documentation](../standards/)
 - Run `dck compliance --help` for command-specific help

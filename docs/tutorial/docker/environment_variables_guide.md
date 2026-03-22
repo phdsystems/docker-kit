@@ -147,7 +147,6 @@ STRIPE_SECRET_KEY=sk_live_actual_key
 
 ### Basic env_file Usage
 ```yaml
-version: '3.8'
 services:
   app:
     image: myapp:latest
@@ -285,7 +284,6 @@ Secrets can override `.env` values for sensitive data while keeping non-sensitiv
 
 ```yaml
 # docker-compose.yml
-version: '3.8'
 
 services:
   app:
@@ -445,7 +443,6 @@ environment:
 ### Example 1: Node.js Application
 ```yaml
 # docker-compose.yml
-version: '3.8'
 services:
   node-app:
     build: .
@@ -465,7 +462,6 @@ services:
 ### Example 2: Multi-Service Stack
 ```yaml
 # docker-compose.yml
-version: '3.8'
 
 x-common-variables: &common-variables
   LOG_LEVEL: ${LOG_LEVEL:-info}
